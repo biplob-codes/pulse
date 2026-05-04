@@ -16,3 +16,12 @@ export const signUpSchema = z.object({
 });
 
 export type SignUpSchema = z.infer<typeof signUpSchema>;
+export const signInSchema = z.object({
+  email: z.email("Please enter a valid email address.").toLowerCase().trim(),
+  password: z
+    .string("Password is required.")
+    .min(1, "Password is required.")
+    .max(128, "Password must be at most 128 characters."),
+});
+
+export type SignInSchema = z.infer<typeof signInSchema>;

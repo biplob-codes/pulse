@@ -6,10 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
-import { AlertCircle, CheckCircle, Loader2 } from "lucide-react";
-import { signUpAction, SignUpState } from "../actions/register";
+import { AlertCircle, Loader2 } from "lucide-react";
 import { redirect } from "next/navigation";
-import Link from "next/link";
+import { signInAction, SignInState } from "../actions/signin";
 
 function FieldError({ messages }: { messages?: string[] }) {
   if (!messages?.length) return null;
@@ -53,10 +52,10 @@ function GoogleIcon() {
   );
 }
 
-const initialState: SignUpState = { success: false };
+const initialState: SignInState = { success: false };
 
-export default function SignUpPage() {
-  const [state, action, isPending] = useActionState(signUpAction, initialState);
+export default function SignInPage() {
+  const [state, action, isPending] = useActionState(signInAction, initialState);
 
   useEffect(() => {
     if (state.success) {
@@ -75,10 +74,10 @@ export default function SignUpPage() {
         {/* Heading */}
         <div className="space-y-1">
           <h1 className="text-2xl font-semibold tracking-tight">
-            Create an account
+            Welcome back
           </h1>
           <p className="text-sm text-muted-foreground">
-            Start collecting user feedback in minutes.
+            Sign in to your account to continue.
           </p>
         </div>
 
@@ -111,36 +110,8 @@ export default function SignUpPage() {
           </Alert>
         )}
 
-        {/* Global success */}
-        {state.success && state.message && (
-          <Alert className="border-green-500/30 bg-green-500/10 text-green-700 dark:text-green-400">
-            <CheckCircle className="size-4" />
-            <AlertDescription>{state.message}</AlertDescription>
-          </Alert>
-        )}
-
         {/* Form */}
         <form action={action} noValidate className="space-y-4">
-          {/* Name */}
-          <div className="space-y-1.5">
-            <Label htmlFor="name">Full name</Label>
-            <Input
-              id="name"
-              name="name"
-              type="text"
-              autoComplete="name"
-              placeholder="Biplob Talukdar"
-              defaultValue={state.fields?.name}
-              aria-invalid={!!state.errors?.name}
-              className={
-                state.errors?.name
-                  ? "border-destructive focus-visible:ring-destructive"
-                  : ""
-              }
-            />
-            <FieldError messages={state.errors?.name} />
-          </div>
-
           {/* Email */}
           <div className="space-y-1.5">
             <Label htmlFor="email">Email address</Label>
@@ -161,14 +132,23 @@ export default function SignUpPage() {
             <FieldError messages={state.errors?.email} />
           </div>
 
+          {/* Password */}
           <div className="space-y-1.5">
-            <Label htmlFor="password">Password</Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="password">Password</Label>
+              <a
+                href="/forgot-password"
+                className="text-xs text-muted-foreground underline underline-offset-4 hover:text-foreground transition-colors"
+              >
+                Forgot password?
+              </a>
+            </div>
             <Input
               id="password"
               name="password"
               type="password"
-              autoComplete="new-password"
-              placeholder="Min. 8 chars, 1 uppercase, 1 number"
+              autoComplete="current-password"
+              placeholder="Your password"
               aria-invalid={!!state.errors?.password}
               className={
                 state.errors?.password
@@ -187,22 +167,22 @@ export default function SignUpPage() {
             {isPending ? (
               <>
                 <Loader2 className="size-4 animate-spin" />
-                Creating account…
+                Signing in…
               </>
             ) : (
-              "Create account"
+              "Sign in"
             )}
           </Button>
         </form>
 
         <p className="text-center text-sm text-muted-foreground">
-          Already have an account?{" "}
-          <Link
-            href="/signin"
+          Don&apos;t have an account?{" "}
+          <a
+            href="/sign-up"
             className="text-foreground font-medium underline underline-offset-4 hover:text-foreground/80 transition-colors"
           >
-            Sign in
-          </Link>
+            Create one
+          </a>
         </p>
       </div>
     </div>
