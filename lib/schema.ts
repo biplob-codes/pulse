@@ -25,3 +25,19 @@ export const signInSchema = z.object({
 });
 
 export type SignInSchema = z.infer<typeof signInSchema>;
+export const onboardingSchema = z.object({
+  name: z
+    .string()
+    .min(2, "Workspace name must be at least 2 characters")
+    .max(64, "Workspace name must be under 64 characters")
+    .trim(),
+
+  slug: z
+    .string()
+    .min(2, "Slug must be at least 2 characters")
+    .max(32, "Slug must be under 32 characters")
+    .regex(
+      /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+      "Slug can only contain lowercase letters, numbers, and hyphens",
+    ),
+});

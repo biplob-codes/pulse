@@ -1,9 +1,10 @@
 import { getSession } from "@/lib/auth-session";
 import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
-import LandingPage from "./LandingPage";
+import LandingPage from "../LandingPage";
+import OnBoarding from "./OnBoarding";
 
-const page = async () => {
+const OnBoardingPage = async () => {
   const session = await getSession();
   if (!session) return <LandingPage />;
   const workspaces = await prisma.workspaceMember.findMany({
@@ -20,7 +21,7 @@ const page = async () => {
   });
   if (workspaces.length > 1) redirect(`/workspaces`);
   if (workspaces.length === 1) redirect(`/w/${workspaces[0].workspace.slug}`);
-  if (workspaces.length === 0) redirect(`/on-boarding`);
+  if (workspaces.length === 0) return <OnBoarding />;
 };
 
-export default page;
+export default OnBoardingPage;

@@ -1,12 +1,9 @@
-import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { headers } from "next/headers";
-import { auth } from "./lib/auth";
+import { NextResponse } from "next/server";
+import { getSession } from "./lib/auth-session";
 // This function can be marked `async` if using `await` inside
 export async function proxy(request: NextRequest) {
-  const session = await auth.api.getSession({
-    headers: await headers(), // you need to pass the headers object.
-  });
+  const session = await getSession();
   if (!session) return NextResponse.redirect(new URL("/", request.url));
 }
 
