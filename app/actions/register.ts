@@ -1,5 +1,5 @@
 "use server";
-
+import { auth } from "@/lib/auth";
 import { signUpSchema } from "@/lib/schema";
 
 export type SignUpState = {
@@ -26,8 +26,6 @@ export async function signUpAction(
     password: formData.get("password") as string,
   };
 
-  // Always echo back non-sensitive fields so the form can repopulate on error.
-  // Password is intentionally excluded — never round-trip it.
   const fields = { name: raw.name, email: raw.email };
 
   const parsed = signUpSchema.safeParse(raw);
@@ -40,18 +38,12 @@ export async function signUpAction(
     };
   }
 
-  const { name, email, password } = parsed.data;
-
   try {
-    // TODO: replace with better-auth signup call
-    // const result = await auth.api.signUpEmail({
-    //   body: { name, email, password },
-    // });
+    const result = await auth.api.signUpEmail({
+      body: { ...parsed.data },
+    });
     // if (result.error) throw new Error(result.error.message);
-
-    console.log("Sign up payload:", { name, email, password });
-
-    await new Promise((r) => setTimeout(r, 500));
+    console.log(result);
 
     return {
       success: true,

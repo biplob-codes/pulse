@@ -1,7 +1,6 @@
 "use client";
 
 import { useActionState, useEffect } from "react";
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,6 +8,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
 import { AlertCircle, CheckCircle, Loader2 } from "lucide-react";
 import { signUpAction, SignUpState } from "../actions/register";
+import { redirect } from "next/navigation";
 
 function FieldError({ messages }: { messages?: string[] }) {
   if (!messages?.length) return null;
@@ -59,7 +59,7 @@ export default function SignUpPage() {
 
   useEffect(() => {
     if (state.success) {
-      // TODO: router.push("/dashboard")
+      redirect("/dashboard");
     }
   }, [state.success]);
 
@@ -160,7 +160,6 @@ export default function SignUpPage() {
             <FieldError messages={state.errors?.email} />
           </div>
 
-          {/* Password — never repopulated intentionally */}
           <div className="space-y-1.5">
             <Label htmlFor="password">Password</Label>
             <Input
