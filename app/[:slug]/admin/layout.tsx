@@ -1,52 +1,30 @@
-"use client";
+import { getSession } from "@/lib/auth-session";
+import prisma from "@/lib/prisma";
+import { redirect } from "next/navigation";
+import React from "react";
+import { AdminLayout } from "./AdminLayout";
 
-import { useState } from "react";
-import { AdminSidebar } from "./Sidebar";
-
-import { cn } from "@/lib/utils";
-import { TopBar } from "./TopBar";
-
-interface AdminLayoutProps {
+const layout = async ({
+  children,
+  params,
+}: {
   children: React.ReactNode;
-  pageTitle?: string;
-}
+  params: { slug: string };
+}) => {
+  const session = await getSession();
+  if (!session) redirect("/");
+  const slug = await params.slug;
+  const workspace = await prisma.workspaceMember.findFirst({
+    where: {
+      userId: session.user.id,
+      workspace: {
+        slug,
+      },
+    },
+  });
 
-export default function AdminLayout({ children, pageTitle }: AdminLayoutProps) {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  if (!workspace) redirect("/");
+  return <AdminLayout>{children}</AdminLayout>;
+};
 
-  return (
-    <div className="flex h-screen w-full overflow-hidden bg-background">
-      {/* Desktop sidebar — always visible on md+ */}
-      <div className="hidden md:flex">
-        <AdminSidebar />
-      </div>
-
-      {/* Mobile sidebar — slide in as overlay */}
-      {sidebarOpen && (
-        <div className="fixed inset-0 z-50 flex md:hidden">
-          {/* Backdrop */}
-          <div
-            className="absolute inset-0 bg-black/40"
-            onClick={() => setSidebarOpen(false)}
-          />
-          {/* Sidebar panel */}
-          <div className="relative z-10 flex h-full">
-            <AdminSidebar />
-          </div>
-        </div>
-      )}
-
-      {/* Main content area */}
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <TopBar
-          sidebarOpen={sidebarOpen}
-          onToggleSidebar={() => setSidebarOpen((v) => !v)}
-          title={pageTitle}
-        />
-        <main className={cn("flex-1 overflow-y-auto p-4 sm:p-6")}>
-          {children}
-        </main>
-      </div>
-    </div>
-  );
-}
+export default layout;
