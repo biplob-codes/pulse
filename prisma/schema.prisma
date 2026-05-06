@@ -30,10 +30,22 @@ model Workspace {
   createdAt DateTime          @default(now())
   updatedAt DateTime          @updatedAt
   members   WorkspaceMember[]
-
+  boards    Board[]
   @@map("workspace")
 }
+model Board {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
 
+  @@unique([slug, workspaceId])
+  @@index([workspaceId])
+  @@map("board")
+}
 model WorkspaceMember {
   id          String    @id @default(cuid())
   role        Role      @default(MEMBER)
