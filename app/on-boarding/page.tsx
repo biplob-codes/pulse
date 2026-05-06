@@ -20,7 +20,8 @@ const OnBoardingPage = async () => {
     },
   });
   if (workspaces.length > 1) redirect(`/workspaces`);
-  if (workspaces.length === 1) redirect(`/w/${workspaces[0].workspace.slug}`);
+  if (workspaces.length === 1)
+    redirect(`/${workspaces[0].workspace.slug}/admin`);
   if (workspaces.length === 0) return <OnBoarding />;
 };
 

@@ -26,7 +26,7 @@ export async function createWorkspaceAction(
   const session = await getSession();
 
   if (!session?.user) {
-    redirect("/sign-in");
+    redirect("/signin");
   }
 
   const raw = {
@@ -79,5 +79,5 @@ export async function createWorkspaceAction(
   });
 
   // 5. Redirect to the new workspace
-  redirect(`/w/${slug}`);
+  redirect(`/${slug}/admin`);
 }

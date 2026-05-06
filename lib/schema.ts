@@ -41,3 +41,37 @@ export const onboardingSchema = z.object({
       "Slug can only contain lowercase letters, numbers, and hyphens",
     ),
 });
+
+export const createBoardSchema = z.object({
+  name: z
+    .string()
+    .min(1, "Board name is required")
+    .min(3, "Board name must be at least 3 characters")
+    .max(50, "Board name must be at most 50 characters")
+    .regex(
+      /^[a-zA-Z0-9\s\-_]+$/,
+      "Board name can only contain letters, numbers, spaces, hyphens, and underscores",
+    ),
+  slug: z
+    .string()
+    .min(1, "URL slug is required")
+    .min(3, "URL slug must be at least 3 characters")
+    .max(50, "URL slug must be at most 50 characters")
+    .regex(
+      /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+      "URL slug must be lowercase letters, numbers, and hyphens only",
+    ),
+});
+
+export type CreateBoardInput = z.infer<typeof createBoardSchema>;
+
+// Helper to generate slug from name
+export function generateSlug(name: string): string {
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+}
