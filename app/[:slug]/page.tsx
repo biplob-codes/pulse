@@ -1,6 +1,7 @@
 import { getSession } from "@/lib/auth-session";
 import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
+import { PublicNavbar } from "./Navbar";
 
 const WorkspacePage = async ({ params }: { params: { slug: string } }) => {
   const session = await getSession();
@@ -16,9 +17,19 @@ const WorkspacePage = async ({ params }: { params: { slug: string } }) => {
 
   if (!workspace) redirect("/");
   return (
-    <div>
-      WorkspacePage: You should see this page if you have selected a workspace.
-    </div>
+    <>
+      <div className="min-h-screen bg-background">
+        <PublicNavbar />
+        <main className="mx-auto max-w-4xl px-4 py-6 sm:px-6">
+          <div className="flex flex-col gap-4">
+            <h2 className="text-lg font-semibold text-foreground">Overview</h2>
+            <p className="text-sm text-muted-foreground">
+              Select a board from the sidebar to manage feedback.
+            </p>
+          </div>
+        </main>
+      </div>
+    </>
   );
 };
 
