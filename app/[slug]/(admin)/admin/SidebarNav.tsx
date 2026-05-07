@@ -5,15 +5,12 @@ import { useParams, usePathname } from "next/navigation";
 import { Lightbulb, Map, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// TODO: Replace with real boards fetched from DB per workspace
-const MOCK_BOARDS = [
-  { id: "1", name: "Feature Request", slug: "feature-request" },
-  { id: "2", name: "Bug Reports", slug: "bug-reports" },
-];
-
-export function SidebarNav() {
+interface Props {
+  boards: { id: string; name: string; slug: string }[];
+}
+export function SidebarNav({ boards }: Props) {
   const pathname = usePathname();
-  const slug = useParams()[":slug"];
+  const slug = useParams()["slug"];
   console.log("params:", useParams());
   const staticLinks = [
     { href: `/${slug}/admin/roadmap`, label: "Roadmap", icon: Map },
@@ -46,7 +43,7 @@ export function SidebarNav() {
         <p className="mb-1 px-2 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/60">
           Boards
         </p>
-        {MOCK_BOARDS.map((board) => {
+        {boards.map((board) => {
           const href = `/${slug}/admin/boards/${board.slug}`;
           const isActive = pathname === href;
           return (

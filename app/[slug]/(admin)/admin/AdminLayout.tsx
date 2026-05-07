@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { AdminSidebar } from "./Sidebar";
 
 import { cn } from "@/lib/utils";
 import { TopBar } from "./TopBar";
@@ -9,17 +8,20 @@ import { TopBar } from "./TopBar";
 interface AdminLayoutProps {
   children: React.ReactNode;
   pageTitle?: string;
+  Sidebar: React.ReactNode;
 }
 
-export function AdminLayout({ children, pageTitle }: AdminLayoutProps) {
+export function AdminLayout({
+  children,
+  pageTitle,
+  Sidebar,
+}: AdminLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-background">
       {/* Desktop sidebar — always visible on md+ */}
-      <div className="hidden md:flex">
-        <AdminSidebar />
-      </div>
+      <div className="hidden md:flex">{Sidebar}</div>
 
       {/* Mobile sidebar — slide in as overlay */}
       {sidebarOpen && (
@@ -30,9 +32,7 @@ export function AdminLayout({ children, pageTitle }: AdminLayoutProps) {
             onClick={() => setSidebarOpen(false)}
           />
           {/* Sidebar panel */}
-          <div className="relative z-10 flex h-full">
-            <AdminSidebar />
-          </div>
+          <div className="relative z-10 flex h-full">{Sidebar}</div>
         </div>
       )}
 

@@ -3,7 +3,7 @@
 import { createBoardAction } from "@/app/actions/board";
 import { Button } from "@/components/ui/button";
 import { generateSlug } from "@/lib/schema";
-import { useParams } from "next/navigation";
+import { redirect, useParams } from "next/navigation";
 import { useActionState, useEffect, useRef } from "react";
 
 type FieldErrors = {
@@ -21,7 +21,7 @@ type ActionState = {
 const initialState: ActionState = {};
 
 export default function CreateBoardForm() {
-  const workspaceSlug = useParams()[":slug"] as string;
+  const workspaceSlug = useParams()["slug"] as string;
   const action = createBoardAction.bind(null, workspaceSlug);
   const [state, formAction, isPending] = useActionState(action, initialState);
 
@@ -40,7 +40,11 @@ export default function CreateBoardForm() {
     if (state.errors?.name) nameRef.current?.focus();
     else if (state.errors?.slug) slugRef.current?.focus();
   }, [state.errors]);
-
+  useEffect(() => {
+    if (state.success) {
+      redirect(`/${workspaceSlug}/admin`);
+    }
+  }, [state.success]);
   return (
     <div className="w-xl">
       {/* Page header */}

@@ -4,6 +4,7 @@ import { getSession } from "@/lib/auth-session";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { createBoardSchema } from "@/lib/schema";
+import { revalidatePath } from "next/cache";
 
 export type CreateBoardState = {
   success?: boolean;
@@ -92,7 +93,7 @@ export async function createBoardAction(
       workspaceId: workspace.id,
     },
   });
-
+  revalidatePath(`/${workspaceSlug}/admin`);
   return {
     success: true,
     message: "Board created successfully.",

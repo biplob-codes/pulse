@@ -13,14 +13,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
-// TODO: Replace with real workspaces from DB/context
-const MOCK_WORKSPACES = [
-  { id: "1", name: "AppX", slug: "appx" },
-  { id: "2", name: "Startup Hub", slug: "startup-hub" },
-];
-
-export function WorkspaceSwitcher() {
-  const [activeWorkspace, setActiveWorkspace] = useState(MOCK_WORKSPACES[0]);
+interface Props {
+  workspaces: { id: string; name: string; slug: string }[];
+}
+export function WorkspaceSwitcher({ workspaces }: Props) {
+  const [activeWorkspace, setActiveWorkspace] = useState(workspaces[0]);
 
   const handleNewWorkspace = () => {
     toast.info("Creating new workspaces isn't available yet.");
@@ -47,7 +44,7 @@ export function WorkspaceSwitcher() {
           side="bottom"
           sideOffset={4}
         >
-          {MOCK_WORKSPACES.map((ws) => (
+          {workspaces.map((ws) => (
             <DropdownMenuItem
               key={ws.id}
               className="flex items-center gap-3 cursor-pointer"

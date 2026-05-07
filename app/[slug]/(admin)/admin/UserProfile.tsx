@@ -9,16 +9,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { User } from "@/app/generated/prisma/client";
 
-// TODO: Replace with real user from session (next-auth or similar)
-const MOCK_USER = {
-  name: "Md.Biplob Talukdar",
-  email: "biplob@example.com",
-  image: "",
-};
+interface Props {
+  user: User;
+}
 
-export function SidebarUserProfile() {
-  const initials = MOCK_USER.name
+export function SidebarUserProfile({ user }: Props) {
+  const initials = user.name
     .split(" ")
     .map((n) => n[0])
     .join("")
@@ -31,17 +29,17 @@ export function SidebarUserProfile() {
         <DropdownMenuTrigger asChild>
           <button className="flex w-full items-center gap-2.5 rounded-md px-2 py-2 text-left text-sm transition-colors hover:bg-accent focus:outline-none">
             <Avatar className="h-7 w-7 shrink-0">
-              <AvatarImage src={MOCK_USER.image} alt={MOCK_USER.name} />
+              <AvatarImage src={user.image || undefined} alt={user.name} />
               <AvatarFallback className="text-[10px] bg-muted text-muted-foreground">
                 {initials}
               </AvatarFallback>
             </Avatar>
             <div className="min-w-0 flex-1">
               <p className="truncate text-xs font-medium text-foreground leading-tight">
-                {MOCK_USER.name}
+                {user.name}
               </p>
               <p className="truncate text-[11px] text-muted-foreground leading-tight mt-0.5">
-                {MOCK_USER.email}
+                {user.email}
               </p>
             </div>
           </button>
@@ -54,12 +52,8 @@ export function SidebarUserProfile() {
           sideOffset={8}
         >
           <div className="px-2 py-1.5">
-            <p className="text-xs font-medium text-foreground">
-              {MOCK_USER.name}
-            </p>
-            <p className="text-[11px] text-muted-foreground">
-              {MOCK_USER.email}
-            </p>
+            <p className="text-xs font-medium text-foreground">{user.name}</p>
+            <p className="text-[11px] text-muted-foreground">{user.email}</p>
           </div>
           <DropdownMenuSeparator />
           <DropdownMenuItem className="gap-2 cursor-pointer text-sm">
