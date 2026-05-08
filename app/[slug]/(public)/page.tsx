@@ -3,7 +3,7 @@ import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import { PublicNavbar } from "../Navbar";
 
-const WorkspacePage = async ({ params }: { params: { slug: string } }) => {
+const WorkspacePage = async ({ params }: { params: Promise<{ slug: string }> }) => {
   const session = await getSession();
   if (!session) redirect("/");
   const slug = (await params).slug;

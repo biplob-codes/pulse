@@ -10,7 +10,7 @@ const layout = async ({
   params,
 }: {
   children: React.ReactNode;
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) => {
   const session = await getSession();
   if (!session) redirect("/");

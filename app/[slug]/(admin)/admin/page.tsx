@@ -1,4 +1,5 @@
-const AdminPage = async ({ params }: { params: { slug: string } }) => {
+const AdminPage = async ({ params }: { params: Promise<{ slug: string }> }) => {
+  const slug = (await params).slug;
   return (
     <div className="flex flex-col gap-4">
       <h2 className="text-lg font-semibold text-foreground">Overview</h2>
