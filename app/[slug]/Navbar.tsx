@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { LayoutDashboard, Lightbulb, Map } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Board } from "../generated/prisma/client";
 
 const MOCK_USER = {
   name: "Ethan Haunt",
@@ -26,9 +27,10 @@ interface Props {
     emailVerified: boolean;
   };
   isMember: boolean;
+  board: Board;
 }
 
-export function PublicNavbar({ workspaceName, user, isMember }: Props) {
+export function PublicNavbar({ workspaceName, user, isMember, board }: Props) {
   const pathname = usePathname();
   const workspaceSlug = pathname.split("/")[1];
 
@@ -40,10 +42,10 @@ export function PublicNavbar({ workspaceName, user, isMember }: Props) {
       isActive: pathname === `/${workspaceSlug}`,
     },
     {
-      href: `/${workspaceSlug}/feedback`,
+      href: `/${workspaceSlug}/${board.slug}`,
       label: "Feedback",
       icon: Lightbulb,
-      isActive: pathname !== `/${workspaceSlug}`,
+      isActive: pathname === `/${workspaceSlug}/${board.slug}`,
     },
   ];
 

@@ -33,6 +33,7 @@ const layout = async ({
         workspaceName={workspace?.name}
         user={session?.user}
         isMember={isMember}
+        board={workspace.boards[0]}
       />
       <main className="max-w-6xl mx-auto px-6 py-6">{children}</main>
     </div>
