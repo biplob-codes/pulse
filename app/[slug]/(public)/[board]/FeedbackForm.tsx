@@ -1,0 +1,78 @@
+"use client";
+
+import { useActionState, useRef } from "react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { createFeedbackAction, FeedbackState } from "@/app/actions/feedback";
+
+const initialState: FeedbackState = {};
+interface Props {
+  context: { workspaceSlug: string; boardSlug: string };
+}
+export function FeedbackForm({ context }: Props) {
+  const action = createFeedbackAction.bind(null, context);
+  const [state, formAction, isPending] = useActionState(action, initialState);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  return (
+    <div className="rounded-sm border border-gray-150 bg-background mb-5">
+      <form ref={formRef} action={formAction}>
+        {/* Title field */}
+        <div className="px-4 pt-4">
+          <input
+            name="title"
+            type="text"
+            placeholder="Short, descriptive title"
+            className={cn(
+              "w-full bg-transparent text-foreground placeholder:text-muted-foreground outline-none placeholder:text-lg mb-3 ",
+              state.errors?.title && "placeholder:text-destructive/60",
+            )}
+          />
+          {state.errors?.title && (
+            <p className="mt-1 text-xs text-destructive">
+              {state.errors.title[0]}
+            </p>
+          )}
+        </div>
+
+        {/* Details field */}
+        <div className="px-4">
+          <p className="mb-1.5  font-medium text-foreground">Details</p>
+          <textarea
+            name="description"
+            placeholder="Any additional details..."
+            rows={3}
+            className={cn(
+              "w-full resize-none bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none",
+            )}
+          />
+          {state.errors?.description && (
+            <p className="mt-1 text-xs text-destructive">
+              {state.errors.description[0]}
+            </p>
+          )}
+        </div>
+
+        {/* Actions */}
+        <div className="flex items-center justify-end gap-2 border-t border-border px-4 py-3">
+          <Button
+            type="button"
+            onClick={() => formRef.current?.reset()}
+            className="rounded-sm "
+            variant="outline"
+          >
+            Cancel
+          </Button>
+
+          <Button
+            type="submit"
+            disabled={isPending}
+            className="rounded-sm bg-indigo-600 text-white"
+          >
+            {isPending ? "Creating..." : "Create Post"}
+          </Button>
+        </div>
+      </form>
+    </div>
+  );
+}
