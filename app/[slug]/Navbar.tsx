@@ -10,11 +10,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Board } from "../generated/prisma/client";
 
-const MOCK_USER = {
-  name: "Ethan Haunt",
-  email: "ethan@example.com",
-  image: "",
-};
 interface Props {
   workspaceName: string;
   user?: {
@@ -63,7 +58,7 @@ export function PublicNavbar({ workspaceName, user, isMember, board }: Props) {
 
           <div className="ml-auto flex items-center gap-1">
             <ThemeToggle />
-            <NotificationBell />
+
             {isMember && (
               <Button variant="outline" className="rounded-sm mx-2 font-normal">
                 <LayoutDashboard />
@@ -72,7 +67,7 @@ export function PublicNavbar({ workspaceName, user, isMember, board }: Props) {
             )}
             {user && (
               <Avatar className="ml-1 h-8 w-8 cursor-pointer">
-                <AvatarImage src={MOCK_USER.image} alt={MOCK_USER.name} />
+                <AvatarImage src={user.image || ""} alt={user.name} />
                 <AvatarFallback className="text-xs bg-muted text-muted-foreground">
                   {user.name
                     .split(" ")
@@ -82,6 +77,23 @@ export function PublicNavbar({ workspaceName, user, isMember, board }: Props) {
                     .toUpperCase()}
                 </AvatarFallback>
               </Avatar>
+            )}
+            {!user && (
+              <div className="ml-2">
+                <Link href="/signin">
+                  <Button
+                    variant="outline"
+                    className="rounded-sm font-normal cursor-pointer"
+                  >
+                    Log in
+                  </Button>
+                </Link>
+                <Link href="/register" className="ml-2">
+                  <Button className="rounded-sm bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer">
+                    Sign up
+                  </Button>
+                </Link>
+              </div>
             )}
           </div>
         </div>
@@ -98,7 +110,7 @@ export function PublicNavbar({ workspaceName, user, isMember, board }: Props) {
                     : "text-muted-foreground hover:text-foreground",
                 )}
               >
-                <Icon className="h-3.5 w-3.5" />
+                <Icon className="h-4 w-4" />
                 {label}
               </Link>
             );
