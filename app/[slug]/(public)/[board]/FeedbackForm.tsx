@@ -4,12 +4,14 @@ import { useActionState, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { createFeedbackAction, FeedbackState } from "@/app/actions/feedback";
+import { AuthModal } from "@/components/AuthModal";
 
 const initialState: FeedbackState = {};
 interface Props {
   context: { workspaceSlug: string; boardSlug: string };
+  isAuthenticated?: boolean;
 }
-export function FeedbackForm({ context }: Props) {
+export function FeedbackForm({ context, isAuthenticated }: Props) {
   const action = createFeedbackAction.bind(null, context);
   const [state, formAction, isPending] = useActionState(action, initialState);
   const formRef = useRef<HTMLFormElement>(null);
@@ -64,13 +66,23 @@ export function FeedbackForm({ context }: Props) {
             Cancel
           </Button>
 
-          <Button
-            type="submit"
-            disabled={isPending}
-            className="rounded-sm bg-indigo-600 text-white"
-          >
-            {isPending ? "Creating..." : "Create Post"}
-          </Button>
+          {isAuthenticated ? (
+            <Button
+              type="submit"
+              disabled={isPending}
+              className="rounded-sm bg-indigo-600 text-white"
+            >
+              {isPending ? "Creating..." : "Create Post"}
+            </Button>
+          ) : (
+            <AuthModal
+              trigger={
+                <Button className="rounded-sm bg-indigo-600 text-white">
+                  Create Post
+                </Button>
+              }
+            />
+          )}
         </div>
       </form>
     </div>

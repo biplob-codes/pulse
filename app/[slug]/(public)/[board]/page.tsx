@@ -3,6 +3,7 @@ import { BoardList } from "./BoardList";
 import { FeedbackForm } from "./FeedbackForm";
 import { FeedbackList } from "./FeedbackList";
 import { redirect } from "next/navigation";
+import { getSession } from "@/lib/auth-session";
 
 const PublicFeedbackPage = async ({
   params,
@@ -37,6 +38,7 @@ const PublicFeedbackPage = async ({
       comments: { select: { id: true } },
     },
   });
+  const session = await getSession();
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3">
       <div className="  px-3 py-4">
@@ -48,6 +50,7 @@ const PublicFeedbackPage = async ({
         <h2 className="mb-5 font-semibold">{board?.name}</h2>
         <FeedbackForm
           context={{ workspaceSlug: param.slug, boardSlug: param.board }}
+          isAuthenticated={!!session}
         />
         <FeedbackList feedbacks={feedbacks} />
       </div>
