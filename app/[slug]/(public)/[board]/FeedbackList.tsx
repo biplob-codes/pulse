@@ -1,18 +1,24 @@
 import { ChevronUp, MessageSquare } from "lucide-react";
 import { UpvoteButton } from "@/components/UpvoteButton";
 import { FeedbackStatus } from "@/app/generated/prisma/browser";
+import { Vote } from "@/app/generated/prisma/client";
 
 type FeedbackItem = {
   id: string;
   title: string;
   description: string | null;
   status: FeedbackStatus;
-  votes: { id: string }[];
+  votes: Vote[];
   comments: { id: string }[];
 };
 
 type Props = {
   feedbacks: FeedbackItem[];
+  user: {
+    id: string;
+  } | null;
+  workspaceSlug: string;
+  boardSlug: string;
 };
 
 const STATUS_LABELS: Partial<Record<FeedbackStatus, string>> = {
@@ -34,7 +40,12 @@ const STATUS_STYLES: Partial<Record<FeedbackStatus, string>> = {
   CLOSED: "bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400",
 };
 
-export function FeedbackList({ feedbacks }: Props) {
+export function FeedbackList({
+  feedbacks,
+  user,
+  workspaceSlug,
+  boardSlug,
+}: Props) {
   return (
     <div className="rounded-sm border border-border bg-background">
       {/* Header bar */}
@@ -111,7 +122,18 @@ export function FeedbackList({ feedbacks }: Props) {
               </div>
 
               {/* Upvote button */}
-              <UpvoteButton feedbackId={item.id} count={item.votes.length} />
+              <UpvoteButton
+                feedbackId={item.id}
+                count={item.votes.length}
+                hasVoted={
+                  user?.id
+                    ? item.votes.some((v) => v.userId === user.id)
+                    : false
+                }
+                isAuthenticated={!!user}
+                workspaceSlug={workspaceSlug}
+                boardSlug={boardSlug}
+              />
             </li>
           ))}
         </ul>

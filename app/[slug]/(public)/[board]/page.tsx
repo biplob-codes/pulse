@@ -34,7 +34,7 @@ const PublicFeedbackPage = async ({
       title: true,
       description: true,
       status: true,
-      votes: { select: { id: true } },
+      votes: true,
       comments: { select: { id: true } },
     },
   });
@@ -52,7 +52,12 @@ const PublicFeedbackPage = async ({
           context={{ workspaceSlug: param.slug, boardSlug: param.board }}
           isAuthenticated={!!session}
         />
-        <FeedbackList feedbacks={feedbacks} />
+        <FeedbackList
+          feedbacks={feedbacks}
+          boardSlug={param.board}
+          workspaceSlug={param.slug}
+          user={session?.user ? { id: session.user.id } : null}
+        />
       </div>
     </div>
   );
