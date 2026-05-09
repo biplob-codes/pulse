@@ -1,6 +1,5 @@
 "use client";
 
-import { NotificationBell } from "@/components/NotificationBell";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -40,7 +39,7 @@ export function PublicNavbar({ workspaceName, user, isMember, board }: Props) {
       href: `/${workspaceSlug}/${board.slug}`,
       label: "Feedback",
       icon: Lightbulb,
-      isActive: pathname === `/${workspaceSlug}/${board.slug}`,
+      isActive: pathname.startsWith(`/${workspaceSlug}/${board.slug}`),
     },
   ];
 

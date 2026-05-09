@@ -4,10 +4,12 @@ import { FeedbackStatus } from "@/app/generated/prisma/browser";
 import { Vote } from "@/app/generated/prisma/client";
 import { cn } from "@/lib/utils";
 import { AuthModal } from "@/components/AuthModal";
+import Link from "next/link";
 
 type FeedbackItem = {
   id: string;
   title: string;
+  slug: string;
   description: string | null;
   status: FeedbackStatus;
   votes: Vote[];
@@ -91,67 +93,69 @@ export function FeedbackList({
       ) : (
         <ul className="divide-y divide-border">
           {feedbacks.map((item) => (
-            <li
+            <Link
               key={item.id}
-              className="flex items-start justify-between gap-4 px-4 py-4 hover:bg-accent/40 transition-colors"
+              href={`/${workspaceSlug}/${boardSlug}/p/${item.slug}`}
             >
-              {/* Text */}
-              <div className="flex flex-col gap-1 min-w-0">
-                <p className="text-sm font-semibold text-foreground truncate">
-                  {item.title}
-                </p>
-                {item.description && (
-                  <p className="text-sm text-muted-foreground line-clamp-1">
-                    {item.description}
+              <li className="flex items-start justify-between gap-4 px-4 py-4 hover:bg-accent/40 transition-colors">
+                {/* Text */}
+                <div className="flex flex-col gap-1 min-w-0">
+                  <p className="text-sm font-semibold text-foreground truncate">
+                    {item.title}
                   </p>
-                )}
-                <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
-                  <span className="flex items-center gap-1">
-                    <MessageSquare className="h-3 w-3" />
-                    {item.comments.length}
-                  </span>
-                  {item.status !== "OPEN" && STATUS_LABELS[item.status] && (
-                    <>
-                      <span>·</span>
-                      <span
-                        className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_STYLES[item.status]}`}
-                      >
-                        {STATUS_LABELS[item.status]}
-                      </span>
-                    </>
+                  {item.description && (
+                    <p className="text-sm text-muted-foreground line-clamp-1">
+                      {item.description}
+                    </p>
                   )}
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
+                    <span className="flex items-center gap-1">
+                      <MessageSquare className="h-3 w-3" />
+                      {item.comments.length}
+                    </span>
+                    {item.status !== "OPEN" && STATUS_LABELS[item.status] && (
+                      <>
+                        <span>·</span>
+                        <span
+                          className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_STYLES[item.status]}`}
+                        >
+                          {STATUS_LABELS[item.status]}
+                        </span>
+                      </>
+                    )}
+                  </div>
                 </div>
-              </div>
 
-              {user?.id ? (
-                <UpvoteButton
-                  feedbackId={item.id}
-                  count={item.votes.length}
-                  hasVoted={
-                    user?.id
-                      ? item.votes.some((v) => v.userId === user.id)
-                      : false
-                  }
-                  isAuthenticated={!!user}
-                  workspaceSlug={workspaceSlug}
-                  boardSlug={boardSlug}
-                />
-              ) : (
-                <AuthModal
-                  trigger={
-                    <button
-                      type="button"
-                      className={cn(
-                        "group flex shrink-0 flex-col items-center justify-center rounded-sm border px-2.5 py-2 text-xs font-medium transition-colors min-w-9.5 min-h-10 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed border-border bg-background text-foreground hover:border-indigo-400 hover:text-indigo-600 dark:hover:border-indigo-500 dark:hover:text-indigo-400",
-                      )}
-                    >
-                      <ChevronUp className="h-3.5 w-3 transition-transform group-hover:-translate-y-0.5" />
-                      <span>{item.votes.length}</span>
-                    </button>
-                  }
-                />
-              )}
-            </li>
+                {user?.id ? (
+                  <UpvoteButton
+                    feedbackId={item.id}
+                    count={item.votes.length}
+                    hasVoted={
+                      user?.id
+                        ? item.votes.some((v) => v.userId === user.id)
+                        : false
+                    }
+                    isAuthenticated={!!user}
+                    workspaceSlug={workspaceSlug}
+                    boardSlug={boardSlug}
+                  />
+                ) : (
+                  <AuthModal
+                    trigger={
+                      <button
+                        type="button"
+                        className={cn(
+                          "group flex shrink-0 flex-col items-center justify-center rounded-sm border px-2.5 py-2 text-xs font-medium transition-colors min-w-9.5 min-h-10 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed border-border bg-background text-foreground hover:border-indigo-400 hover:text-indigo-600 dark:hover:border-indigo-500 dark:hover:text-indigo-400",
+                        )}
+                      >
+                        <ChevronUp className="h-3.5 w-3 transition-transform group-hover:-translate-y-0.5" />
+                        <span>{item.votes.length}</span>
+                      </button>
+                    }
+                  />
+                )}
+              </li>
+            </Link>
           ))}
         </ul>
       )}

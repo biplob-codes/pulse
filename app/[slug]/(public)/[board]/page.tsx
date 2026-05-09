@@ -32,6 +32,7 @@ const PublicFeedbackPage = async ({
     select: {
       id: true,
       title: true,
+      slug: true,
       description: true,
       status: true,
       votes: true,
