@@ -66,19 +66,26 @@ export async function createFeedbackAction(
   }
   const board = workspace.boards.filter((b) => b.slug === boardSlug)[0];
 
-  await prisma.feedback.create({
-    data: {
-      title,
-      description,
-      boardId: board.id,
-      authorId: session.user.id,
-      slug: generateSlug(title),
-    },
-  });
+  try {
+    await prisma.feedback.create({
+      data: {
+        title,
+        description,
+        boardId: board.id,
+        authorId: session.user.id,
+        slug: generateSlug(title),
+      },
+    });
 
-  revalidatePath(`/${workspaceSlug}/${boardSlug}`);
-  return {
-    success: true,
-    message: "Feedback created successfully.",
-  };
+    revalidatePath(`/${workspaceSlug}/${boardSlug}`);
+    return {
+      success: true,
+      message: "Feedback created successfully.",
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: "An error occurred while creating the feedback.",
+    };
+  }
 }

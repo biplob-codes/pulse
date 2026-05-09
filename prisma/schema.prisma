@@ -59,7 +59,7 @@ enum FeedbackStatus {
 model Feedback {
   id          String         @id @default(cuid())
   title       String
-  slug       String        
+  slug       String        @unique
   description String?
   status      FeedbackStatus @default(OPEN)
   boardId     String
@@ -70,7 +70,6 @@ model Feedback {
   comments    Comment[]
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
-  @@unique([slug, boardId])
   @@index([boardId])
   @@index([authorId])
   @@map("feedback")
