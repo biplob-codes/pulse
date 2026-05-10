@@ -3,6 +3,7 @@ import { Vote } from "@/app/generated/prisma/client";
 import { UpvoteButton } from "@/components/UpvoteButton";
 import { ChevronUp, MessageSquare } from "lucide-react";
 import Link from "next/link";
+import FeedbackFilters from "./FeedbackFilter";
 
 type FeedbackItem = {
   id: string;
@@ -53,12 +54,7 @@ export function FeedbackList({
       {/* Header bar */}
       <div className="flex items-center justify-between border-b border-border px-4 py-3">
         <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-          <span>Showing</span>
-          <button className="flex items-center gap-1 font-medium text-foreground hover:underline">
-            Trending
-            <ChevronUp className="h-3.5 w-3.5 rotate-180" />
-          </button>
-          <span>posts</span>
+          <FeedbackFilters />
         </div>
         <div className="flex items-center gap-2 rounded-md border border-border px-3 py-1.5 text-sm text-muted-foreground">
           <svg
@@ -85,8 +81,8 @@ export function FeedbackList({
 
       {/* Feedback rows */}
       {feedbacks.length === 0 ? (
-        <div className="px-4 py-10 text-center text-sm text-muted-foreground">
-          No posts yet. Be the first to submit feedback!
+        <div className="px-4 py-10 text-center text-lg text-muted-foreground">
+          No posts yet
         </div>
       ) : (
         <ul className="divide-y divide-border">

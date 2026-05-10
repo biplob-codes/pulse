@@ -4,13 +4,21 @@ import { FeedbackForm } from "./FeedbackForm";
 import { FeedbackList } from "./FeedbackList";
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth-session";
+import { parseSort, parseStatus } from "@/lib/feedback-params";
 
 const PublicFeedbackPage = async ({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string; board: string }>;
+  searchParams: Promise<{ sort?: string; status?: string }>;
 }) => {
   const param = await params;
+  const { sort: rawSort, status: rawStatus } = await searchParams;
+
+  const sort = parseSort(rawSort);
+  const status = parseStatus(rawStatus);
+
   const boards = (
     await prisma.workspace.findFirst({
       where: { slug: param.slug },
@@ -28,7 +36,7 @@ const PublicFeedbackPage = async ({
   if (!boards) redirect("/");
   const board = boards.find((b) => b.slug === param.board);
   const feedbacks = await prisma.feedback.findMany({
-    where: { boardId: board?.id },
+    where: { boardId: board?.id, ...(status && { status }) },
     select: {
       id: true,
       title: true,
@@ -38,6 +46,12 @@ const PublicFeedbackPage = async ({
       votes: true,
       comments: { select: { id: true } },
     },
+    orderBy:
+      sort === "top"
+        ? { votes: { _count: "desc" } }
+        : sort === "oldest"
+          ? { createdAt: "asc" }
+          : { createdAt: "desc" },
   });
   const session = await getSession();
   return (
