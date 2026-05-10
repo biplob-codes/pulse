@@ -3,6 +3,7 @@ import { VotersList } from "./VotersList";
 import prisma from "@/lib/prisma";
 import { FeedbackCard } from "./FeedbackCard";
 import { getSession } from "@/lib/auth-session";
+import CommentInput from "./CommentInput";
 interface Props {
   params: Promise<{
     feedback: string;
@@ -45,6 +46,10 @@ const FeedbackDetailsPage = async ({ params }: Props) => {
           workspaceSlug={workspaceSlug}
           boardSlug={board}
           votes={feedback.votes}
+        />
+        <CommentInput
+          isAuthenticated={!!session?.user}
+          feedbackId={feedback.id}
         />
       </div>
     </div>
