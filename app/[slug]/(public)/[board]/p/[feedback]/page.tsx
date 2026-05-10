@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma";
 import { FeedbackCard } from "./FeedbackCard";
 import { getSession } from "@/lib/auth-session";
 import CommentInput from "./CommentInput";
+import CommentList from "./CommentList";
 interface Props {
   params: Promise<{
     feedback: string;
@@ -20,6 +21,9 @@ const FeedbackDetailsPage = async ({ params }: Props) => {
     include: {
       votes: { include: { user: true } },
       author: { select: { id: true, name: true, image: true } },
+      comments: {
+        include: { author: { select: { id: true, name: true, image: true } } },
+      },
     },
   });
   if (!feedback) {
@@ -51,6 +55,7 @@ const FeedbackDetailsPage = async ({ params }: Props) => {
           isAuthenticated={!!session?.user}
           feedbackId={feedback.id}
         />
+        <CommentList comments={feedback.comments} />
       </div>
     </div>
   );
