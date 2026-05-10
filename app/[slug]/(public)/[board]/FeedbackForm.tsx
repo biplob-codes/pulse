@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useRef } from "react";
+import { useActionState, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { createFeedbackAction, FeedbackState } from "@/app/actions/feedback";
@@ -15,7 +15,7 @@ export function FeedbackForm({ context, isAuthenticated }: Props) {
   const action = createFeedbackAction.bind(null, context);
   const [state, formAction, isPending] = useActionState(action, initialState);
   const formRef = useRef<HTMLFormElement>(null);
-
+  const [openAuthModal, setOpenAuthModal] = useState(false);
   return (
     <div className="rounded-sm border border-gray-150 bg-background mb-5">
       <form ref={formRef} action={formAction}>
@@ -66,25 +66,22 @@ export function FeedbackForm({ context, isAuthenticated }: Props) {
             Cancel
           </Button>
 
-          {isAuthenticated ? (
-            <Button
-              type="submit"
-              disabled={isPending}
-              className="rounded-sm bg-indigo-600 text-white"
-            >
-              {isPending ? "Creating..." : "Create Post"}
-            </Button>
-          ) : (
-            <AuthModal
-              trigger={
-                <Button className="rounded-sm bg-indigo-600 text-white">
-                  Create Post
-                </Button>
+          <Button
+            type="submit"
+            disabled={isPending}
+            onClick={(e) => {
+              if (!isAuthenticated) {
+                e.preventDefault();
+                setOpenAuthModal(true);
               }
-            />
-          )}
+            }}
+            className="rounded-sm bg-indigo-600 text-white cursor-pointer"
+          >
+            {isPending ? "Creating..." : "Create Post"}
+          </Button>
         </div>
       </form>
+      <AuthModal open={openAuthModal} onClose={() => setOpenAuthModal(false)} />
     </div>
   );
 }

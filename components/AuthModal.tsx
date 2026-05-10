@@ -4,14 +4,13 @@ import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Mail } from "lucide-react";
 import Link from "next/link";
 
-type Props = {
-  trigger: React.ReactNode;
-};
-
-export function AuthModal({ trigger }: Props) {
+interface AuthModalProps {
+  open: boolean;
+  onClose: () => void;
+}
+export function AuthModal({ open, onClose }: AuthModalProps) {
   return (
-    <Dialog>
-      <DialogTrigger asChild>{trigger}</DialogTrigger>
+    <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md p-0 overflow-hidden">
         <div className="flex flex-col items-center px-8 pt-8 pb-6 gap-6">
           {/* Title */}

@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Paperclip, Loader2 } from "lucide-react";
 import { createCommentAction } from "@/app/actions/comment";
+import { AuthModal } from "@/components/AuthModal";
 
 interface CommentInputProps {
   feedbackId: string;
@@ -24,7 +25,7 @@ export default function CommentInput({
   const [value, setValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-
+  const [openAuthModal, setOpenAuthModal] = useState(false);
   // Bind feedbackId into the server action via a context object
   const boundAction = createCommentAction.bind(null, { feedbackId });
 
@@ -76,7 +77,7 @@ export default function CommentInput({
             onChange={(e) => setValue(e.target.value)}
             onFocus={handleFocus}
             placeholder="Leave a comment"
-            disabled={!isAuthenticated || isPending}
+            disabled={isPending}
             className={[
               "border-0 shadow-none focus-visible:ring-0 bg-transparent!",
               "placeholder:text-muted-foreground text-sm",
@@ -114,7 +115,13 @@ export default function CommentInput({
 
                 <Button
                   type="submit"
-                  disabled={!value.trim() || isPending || !isAuthenticated}
+                  disabled={!value.trim() || isPending}
+                  onClick={(e) => {
+                    if (!isAuthenticated) {
+                      e.preventDefault();
+                      setOpenAuthModal(true);
+                    }
+                  }}
                   className="py-4 rounded-sm bg-indigo-500 hover:bg-indigo-600 text-white cursor-pointer"
                 >
                   {isPending ? (
@@ -132,13 +139,7 @@ export default function CommentInput({
       {state?.error && (
         <p className="mt-1.5 text-xs text-destructive pl-1">{state.error}</p>
       )}
-
-      {/* ── Unauthenticated hint ── */}
-      {!isAuthenticated && (
-        <p className="mt-1.5 text-xs text-muted-foreground pl-1">
-          Please sign in to leave a comment.
-        </p>
-      )}
+      <AuthModal open={openAuthModal} onClose={() => setOpenAuthModal(false)} />
     </div>
   );
 }
