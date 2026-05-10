@@ -69,7 +69,7 @@ export default function SignUpPage() {
       <div className="w-full max-w-sm space-y-6">
         {/* Brand */}
         <div className="flex items-center gap-2">
-          <span className="text-sm font-semibold">UpVote</span>
+          <span className="text-sm font-semibold">Pulse</span>
         </div>
 
         {/* Heading */}

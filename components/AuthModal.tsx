@@ -15,7 +15,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
         <div className="flex flex-col items-center px-8 pt-8 pb-6 gap-6">
           {/* Title */}
           <h2 className="text-lg font-semibold text-foreground">
-            Sign up for Upvote
+            Sign up for Pulse
           </h2>
 
           {/* OAuth buttons */}
@@ -76,7 +76,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
 
           {/* Description */}
           <p className="text-center text-sm text-muted-foreground leading-relaxed">
-            We use Upvote to collect feedback from users like you.
+            We use Pulse to collect feedback from users like you.
             <br />
             Sign up to post and vote.
           </p>

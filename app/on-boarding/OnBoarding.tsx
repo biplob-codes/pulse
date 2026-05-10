@@ -75,7 +75,7 @@ export default function OnBoarding() {
       <div className="relative w-full max-w-sm space-y-8">
         {/* Brand */}
         <div className="flex items-center gap-2">
-          <span className="text-sm font-semibold">UpVote</span>
+          <span className="text-sm font-semibold">Pulse</span>
         </div>
 
         {/* Icon + Heading */}
@@ -132,7 +132,7 @@ export default function OnBoarding() {
             {/* URL preview row */}
             <div className="flex items-center rounded-md border border-input bg-muted/40 focus-within:border-ring focus-within:ring-1 focus-within:ring-ring overflow-hidden">
               <span className="pl-3 pr-1 text-sm text-muted-foreground whitespace-nowrap select-none">
-                upvote.com/
+                pulse.io/
               </span>
               <input
                 ref={slugRef}

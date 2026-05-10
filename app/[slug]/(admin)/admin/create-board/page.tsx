@@ -108,7 +108,7 @@ export default function CreateBoardForm() {
               `}
             >
               <span className="pl-3 pr-0.5 text-sm text-muted-foreground select-none whitespace-nowrap">
-                {workspaceSlug}.upvote.io/
+                {workspaceSlug}.pulse.io/
               </span>
               <input
                 ref={slugRef}

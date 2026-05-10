@@ -7,7 +7,7 @@ export default function LandingPage() {
   const [dark, setDark] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem("upvote-theme");
+    const saved = localStorage.getItem("pulse-theme");
     if (saved === "dark") {
       setDark(true);
       document.documentElement.classList.add("dark");
@@ -19,10 +19,10 @@ export default function LandingPage() {
     setDark(next);
     if (next) {
       document.documentElement.classList.add("dark");
-      localStorage.setItem("upvote-theme", "dark");
+      localStorage.setItem("pulse-theme", "dark");
     } else {
       document.documentElement.classList.remove("dark");
-      localStorage.setItem("upvote-theme", "light");
+      localStorage.setItem("pulse-theme", "light");
     }
   };
 
@@ -34,7 +34,7 @@ export default function LandingPage() {
           <span className="w-5 h-5 bg-zinc-900 dark:bg-zinc-50 rounded-[4px] flex items-center justify-center text-white dark:text-zinc-900 text-[9px]">
             ▲
           </span>
-          <span className="font-serif text-xl tracking-tight">Upvote</span>
+          <span className="font-serif text-xl tracking-tight">Pulse</span>
         </div>
         <button
           onClick={toggleTheme}
@@ -85,7 +85,7 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="text-center py-6 text-xs text-zinc-400 dark:text-zinc-600 border-t border-zinc-200 dark:border-zinc-800">
-        © 2026 Upvote. Built for makers who listen.
+        © 2026 Pulse. Built for makers who listen.
       </footer>
     </div>
   );
