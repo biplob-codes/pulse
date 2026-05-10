@@ -91,53 +91,55 @@ export function FeedbackList({
       ) : (
         <ul className="divide-y divide-border">
           {feedbacks.map((item) => (
-            <Link
+            <li
               key={item.id}
-              href={`/${workspaceSlug}/${boardSlug}/p/${item.slug}`}
+              className="flex items-start justify-between gap-4 px-4 py-4 hover:bg-accent/40 transition-colors"
             >
-              <li className="flex items-start justify-between gap-4 px-4 py-4 hover:bg-accent/40 transition-colors">
-                {/* Text */}
-                <div className="flex flex-col gap-1 min-w-0">
-                  <p className="text-sm font-semibold text-foreground truncate">
-                    {item.title}
+              {/* Text — clicking this navigates */}
+              <Link
+                href={`/${workspaceSlug}/${boardSlug}/p/${item.slug}`}
+                className="flex flex-col gap-1 min-w-0 flex-1"
+              >
+                <p className="text-sm font-semibold text-foreground truncate">
+                  {item.title}
+                </p>
+                {item.description && (
+                  <p className="text-sm text-muted-foreground line-clamp-1">
+                    {item.description}
                   </p>
-                  {item.description && (
-                    <p className="text-sm text-muted-foreground line-clamp-1">
-                      {item.description}
-                    </p>
+                )}
+                <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
+                  <span className="flex items-center gap-1">
+                    <MessageSquare className="h-3 w-3" />
+                    {item.comments.length}
+                  </span>
+                  {item.status !== "OPEN" && STATUS_LABELS[item.status] && (
+                    <>
+                      <span>·</span>
+                      <span
+                        className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_STYLES[item.status]}`}
+                      >
+                        {STATUS_LABELS[item.status]}
+                      </span>
+                    </>
                   )}
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
-                    <span className="flex items-center gap-1">
-                      <MessageSquare className="h-3 w-3" />
-                      {item.comments.length}
-                    </span>
-                    {item.status !== "OPEN" && STATUS_LABELS[item.status] && (
-                      <>
-                        <span>·</span>
-                        <span
-                          className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_STYLES[item.status]}`}
-                        >
-                          {STATUS_LABELS[item.status]}
-                        </span>
-                      </>
-                    )}
-                  </div>
                 </div>
+              </Link>
 
-                <UpvoteButton
-                  feedbackId={item.id}
-                  count={item.votes.length}
-                  hasVoted={
-                    user?.id
-                      ? item.votes.some((v) => v.userId === user.id)
-                      : false
-                  }
-                  isAuthenticated={!!user}
-                  workspaceSlug={workspaceSlug}
-                  boardSlug={boardSlug}
-                />
-              </li>
-            </Link>
+              {/* Button — clicking this votes, not navigates */}
+              <UpvoteButton
+                feedbackId={item.id}
+                count={item.votes.length}
+                hasVoted={
+                  user?.id
+                    ? item.votes.some((v) => v.userId === user.id)
+                    : false
+                }
+                isAuthenticated={!!user}
+                workspaceSlug={workspaceSlug}
+                boardSlug={boardSlug}
+              />
+            </li>
           ))}
         </ul>
       )}
