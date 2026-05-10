@@ -1,8 +1,8 @@
 "use client";
 
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import UserAvatar from "@/components/UserAvatar";
 import { cn } from "@/lib/utils";
 import { LayoutDashboard, Lightbulb, Map } from "lucide-react";
 import Link from "next/link";
@@ -64,19 +64,7 @@ export function PublicNavbar({ workspaceName, user, isMember, board }: Props) {
                 Manage workspace
               </Button>
             )}
-            {user && (
-              <Avatar className="ml-1 h-8 w-8 cursor-pointer">
-                <AvatarImage src={user.image || ""} alt={user.name} />
-                <AvatarFallback className="text-xs bg-muted text-muted-foreground">
-                  {user.name
-                    .split(" ")
-                    .map((n) => n[0])
-                    .join("")
-                    .slice(0, 2)
-                    .toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-            )}
+            {user && <UserAvatar user={user} />}
             {!user && (
               <div className="ml-2">
                 <Link href="/signin">

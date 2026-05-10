@@ -1,4 +1,4 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import UserAvatar from "@/components/UserAvatar";
 
 interface Props {
   voters: {
@@ -16,17 +16,7 @@ export function VotersList({ voters }: Props) {
       <div className="flex flex-col gap-2.5">
         {voters.map((voter) => (
           <div key={voter.id} className="flex items-center gap-2.5">
-            <Avatar className="w-7 h-7 text-xs">
-              <AvatarImage src={voter.image ?? undefined} />
-              <AvatarFallback className="bg-muted text-muted-foreground">
-                {voter.name
-                  .split(" ")
-                  .map((n) => n[0])
-                  .join("")
-                  .slice(0, 2)
-                  .toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
+            <UserAvatar user={voter} />
             <span className="text-[15px] text-gray-800 dark:text-gray-200">
               {voter.name}
             </span>

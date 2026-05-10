@@ -1,11 +1,11 @@
 import { ChevronUp } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { FeedbackStatus } from "@/app/generated/prisma/enums";
 import FeedbackStatusBadge from "@/components/FeedbackStatus";
 import { UpvoteButton } from "@/components/UpvoteButton";
 import { Vote } from "@/app/generated/prisma/client";
 import { cn } from "@/lib/utils";
 import { AuthModal } from "@/components/AuthModal";
+import UserAvatar from "@/components/UserAvatar";
 interface Props {
   id: string;
   title: string;
@@ -83,16 +83,7 @@ export function FeedbackCard({
 
       {/* Feedback row */}
       <div className="flex items-start gap-5 mt-6">
-        <Avatar className="h-8 w-8">
-          <AvatarImage src={author.image || ""} alt={author.name} />
-          <AvatarFallback className="bg-teal-600 text-xs font-semibold text-white dark:bg-teal-500">
-            {author.name
-              .split(" ")
-              .map((n) => n[0])
-              .join("")
-              .toUpperCase()}
-          </AvatarFallback>
-        </Avatar>
+        <UserAvatar user={author} />
 
         <div className="flex flex-col gap-2">
           <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
