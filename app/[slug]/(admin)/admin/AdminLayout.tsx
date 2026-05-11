@@ -11,11 +11,7 @@ interface AdminLayoutProps {
   Sidebar: React.ReactNode;
 }
 
-export function AdminLayout({
-  children,
-  pageTitle,
-  Sidebar,
-}: AdminLayoutProps) {
+export function AdminLayout({ children, Sidebar }: AdminLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
@@ -41,7 +37,6 @@ export function AdminLayout({
         <TopBar
           sidebarOpen={sidebarOpen}
           onToggleSidebar={() => setSidebarOpen((v) => !v)}
-          title={pageTitle}
         />
         <main className={cn("flex-1 overflow-y-auto p-4 sm:p-6")}>
           {children}

@@ -1,18 +1,27 @@
 "use client";
 
 import {
-  useReactTable,
+  ColumnFiltersState,
+  flexRender,
   getCoreRowModel,
-  getSortedRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
-  flexRender,
+  getSortedRowModel,
   SortingState,
-  ColumnFiltersState,
+  useReactTable,
 } from "@tanstack/react-table";
+import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { useState } from "react";
-import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -21,16 +30,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { FeedbackRow, columns } from "./Columns";
+import { usePathname, useRouter } from "next/navigation";
+import { columns, FeedbackRow } from "./Columns";
 
 const STATUS_OPTIONS: { label: string; value: string }[] = [
   { label: "All", value: "ALL" },
@@ -47,6 +48,8 @@ interface FeedbackTableProps {
 }
 
 export function FeedbackTable({ data }: FeedbackTableProps) {
+  const router = useRouter();
+  const pathname = usePathname();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
@@ -138,6 +141,7 @@ export function FeedbackTable({ data }: FeedbackTableProps) {
                 <TableRow
                   key={row.id}
                   className="cursor-pointer hover:bg-muted/30 transition-colors"
+                  onClick={() => router.push(`${pathname}/${row.original.id}`)}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id} className="py-3">

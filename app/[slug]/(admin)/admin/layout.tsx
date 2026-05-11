@@ -52,7 +52,6 @@ const layout = async ({
           workspaces={workspaces.map((wm) => wm.workspace)}
         />
       }
-      pageTitle="Admin"
     >
       {children}
     </AdminLayout>

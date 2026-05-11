@@ -13,16 +13,6 @@ interface ActionState {
   success?: boolean;
 }
 
-/**
- * addComment — server action called by CommentInput.
- *
- * The component binds `context` (containing feedbackId) via .bind(), so
- * Next.js will pass it as the first argument before `_prevState` and `formData`.
- *
- * Usage in the component:
- *   const boundAction = addComment.bind(null, { feedbackId });
- *   const [state, formAction, isPending] = useActionState(boundAction, {});
- */
 export async function createCommentAction(
   context: CommentContext,
   _prevState: ActionState,
