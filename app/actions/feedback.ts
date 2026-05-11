@@ -6,6 +6,7 @@ import { createFeedbackSchema } from "@/lib/schema";
 import { generateSlug } from "@/lib/utils";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { FeedbackStatus } from "../generated/prisma/enums";
 
 export type FeedbackState = {
   success?: boolean;
@@ -171,4 +172,33 @@ export async function deleteFeedbackAction(
     where: { id: context.feedbackId },
   });
   redirect(`/${feedback.board.workspace.slug}/${feedback.board.slug}`);
+}
+
+export async function updateFeedbackStatusAction(
+  feedbackId: string,
+  status: FeedbackStatus,
+  workspaceSlug: string,
+  boardId: string,
+) {
+  const session = await getSession();
+
+  if (!session?.user) {
+    redirect("/signin");
+  }
+  const workspaceMember = await prisma.workspaceMember.findFirst({
+    where: {
+      userId: session.user.id,
+      workspace: { slug: workspaceSlug },
+    },
+  });
+  if (!workspaceMember) {
+    redirect("/signin");
+  }
+
+  await prisma.feedback.update({
+    where: { id: feedbackId },
+    data: { status },
+  });
+
+  revalidatePath(`/${workspaceSlug}/admin/boards/${boardId}`);
 }

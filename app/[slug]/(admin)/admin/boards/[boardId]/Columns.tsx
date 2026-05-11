@@ -5,7 +5,7 @@ import { ArrowUpDown, MessageSquare, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatDistanceToNow } from "date-fns";
 import { FeedbackStatus } from "@/app/generated/prisma/enums";
-import { StatusBadge } from "./StatusBadge";
+import { StatusChanger } from "./StatusChanger";
 
 export type FeedbackRow = {
   id: string;
@@ -15,6 +15,8 @@ export type FeedbackRow = {
   author: { name: string; email: string };
   _count: { votes: number; comments: number };
   createdAt: Date;
+  boardId: string;
+  workspaceSlug: string;
 };
 
 export const columns: ColumnDef<FeedbackRow>[] = [
@@ -104,7 +106,14 @@ export const columns: ColumnDef<FeedbackRow>[] = [
         Status
       </span>
     ),
-    cell: ({ row }) => <StatusBadge status={row.getValue("status")} />,
+    cell: ({ row }) => (
+      <StatusChanger
+        feedbackId={row.original.id}
+        currentStatus={row.original.status}
+        workspaceSlug={row.original.workspaceSlug}
+        boardId={row.original.boardId}
+      />
+    ),
     filterFn: (row, _, filterValue) => {
       if (!filterValue || filterValue === "ALL") return true;
       return row.original.status === filterValue;

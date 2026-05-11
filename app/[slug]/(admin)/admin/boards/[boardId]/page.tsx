@@ -40,7 +40,11 @@ export default async function BoardDetailPage({
     },
     {} as Record<string, number>,
   );
-
+  const feedbacks = board.feedbacks.map((f) => ({
+    ...f,
+    workspaceSlug: params.slug,
+    boardId: params.boardId,
+  }));
   return (
     <div className=" max-w-6xl mx-auto space-y-6">
       <div className="flex items-center gap-2">
@@ -87,7 +91,7 @@ export default async function BoardDetailPage({
       </div>
 
       {/* Table */}
-      <FeedbackTable data={board.feedbacks} />
+      <FeedbackTable data={feedbacks} />
     </div>
   );
 }
