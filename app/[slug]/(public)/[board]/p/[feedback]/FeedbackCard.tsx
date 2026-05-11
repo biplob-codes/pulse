@@ -3,6 +3,7 @@ import { FeedbackStatus } from "@/app/generated/prisma/enums";
 import FeedbackStatusBadge from "@/components/FeedbackStatus";
 import { UpvoteButton } from "@/components/UpvoteButton";
 import UserAvatar from "@/components/UserAvatar";
+import { EditFeedback } from "./EditFeedback";
 interface Props {
   id: string;
   title: string;
@@ -84,9 +85,7 @@ export function FeedbackCard({
             {currentUser && currentUser.id === author.id && (
               <>
                 <span>·</span>
-                <button className="transition-colors hover:text-zinc-700 dark:hover:text-zinc-300">
-                  Edit Post
-                </button>
+                <EditFeedback id={id} title={title} description={description} />
                 <span>·</span>
                 <button className="transition-colors hover:text-red-500 dark:hover:text-red-400">
                   Delete

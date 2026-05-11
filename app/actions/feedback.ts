@@ -89,3 +89,54 @@ export async function createFeedbackAction(
     };
   }
 }
+
+interface UpdateContext {
+  feedbackId: string;
+}
+
+export async function updateFeedbackAction(
+  context: UpdateContext,
+  _prevState: FeedbackState,
+  formData: FormData,
+): Promise<FeedbackState> {
+  const session = await getSession();
+
+  if (!session?.user) {
+    redirect("/signin");
+  }
+  const raw = {
+    title: formData.get("title") as string,
+    description: formData.get("description") as string,
+  };
+
+  // 2. Validate
+  const parsed = createFeedbackSchema.safeParse(raw);
+
+  if (!parsed.success) {
+    return {
+      success: false,
+      fields: raw,
+      errors: parsed.error.flatten().fieldErrors,
+    };
+  }
+
+  const { title, description } = parsed.data;
+  const feedback = await prisma.feedback.findUnique({
+    where: { id: context.feedbackId, authorId: session.user.id },
+  });
+  if (!feedback) {
+    return {
+      success: false,
+      message: "Feedback not found or you don't have permission to edit it.",
+    };
+  }
+  await prisma.feedback.update({
+    where: { id: context.feedbackId },
+    data: {
+      title,
+      description,
+    },
+  });
+
+  return { success: true };
+}
