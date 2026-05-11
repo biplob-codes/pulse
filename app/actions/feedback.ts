@@ -140,3 +140,35 @@ export async function updateFeedbackAction(
 
   return { success: true };
 }
+interface DeleteContext {
+  feedbackId: string;
+}
+
+export async function deleteFeedbackAction(
+  context: DeleteContext,
+  _prevState: FeedbackState,
+  formData: FormData,
+): Promise<FeedbackState> {
+  const session = await getSession();
+
+  if (!session?.user) {
+    redirect("/signin");
+  }
+
+  const feedback = await prisma.feedback.findUnique({
+    where: { id: context.feedbackId, authorId: session.user.id },
+    select: {
+      board: { select: { slug: true, workspace: { select: { slug: true } } } },
+    },
+  });
+  if (!feedback) {
+    return {
+      success: false,
+      message: "Feedback not found or you don't have permission to edit it.",
+    };
+  }
+  await prisma.feedback.delete({
+    where: { id: context.feedbackId },
+  });
+  redirect(`/${feedback.board.workspace.slug}/${feedback.board.slug}`);
+}

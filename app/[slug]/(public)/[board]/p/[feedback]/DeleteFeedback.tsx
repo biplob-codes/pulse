@@ -1,0 +1,90 @@
+"use client";
+
+import { deleteFeedbackAction } from "@/app/actions/feedback";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Loader2 } from "lucide-react";
+import { useActionState, useState } from "react";
+
+interface DeletePostProps {
+  id: string;
+}
+
+interface ActionState {
+  error?: string;
+  success?: boolean;
+}
+
+export function DeleteFeedback({ id }: DeletePostProps) {
+  const boundAction = deleteFeedbackAction.bind(null, { feedbackId: id });
+  const [open, setOpen] = useState(false);
+  const [state, formAction, isPending] = useActionState<ActionState, FormData>(
+    async (prev, formData) => {
+      const result = await boundAction(prev, formData);
+
+      return result;
+    },
+    {},
+  );
+
+  return (
+    <>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent
+          showCloseButton={false}
+          className="sm:max-w-2xl  rounded-lg p-8 gap-0"
+        >
+          <DialogHeader>
+            <DialogTitle>
+              Are you sure you want to delete this post?
+            </DialogTitle>
+            <DialogDescription className="mt-3">
+              This action can't be undone, and all votes and comments will also
+              be deleted.
+            </DialogDescription>
+          </DialogHeader>
+
+          {state?.error && (
+            <p className="text-xs text-destructive mt-2">{state.error}</p>
+          )}
+
+          <div className="flex justify-end gap-2 mt-6">
+            <Button
+              variant="outline"
+              onClick={() => setOpen(false)}
+              disabled={isPending}
+              className="rounded-sm  cursor-pointer px-5"
+            >
+              Cancel
+            </Button>
+            <form action={formAction}>
+              <Button
+                type="submit"
+                disabled={isPending}
+                className="cursor-pointer rounded-sm px-5 bg-indigo-500 hover:bg-indigo-600 text-white"
+              >
+                {isPending && (
+                  <Loader2 size={13} className="animate-spin mr-1.5" />
+                )}
+                Delete
+              </Button>
+            </form>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <button
+        onClick={() => setOpen(true)}
+        className="transition-colors hover:text-red-500 dark:hover:text-red-400 cursor-pointer"
+      >
+        Delete
+      </button>
+    </>
+  );
+}

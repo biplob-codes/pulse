@@ -4,6 +4,7 @@ import FeedbackStatusBadge from "@/components/FeedbackStatus";
 import { UpvoteButton } from "@/components/UpvoteButton";
 import UserAvatar from "@/components/UserAvatar";
 import { EditFeedback } from "./EditFeedback";
+import { DeleteFeedback } from "./DeleteFeedback";
 interface Props {
   id: string;
   title: string;
@@ -87,9 +88,7 @@ export function FeedbackCard({
                 <span>·</span>
                 <EditFeedback id={id} title={title} description={description} />
                 <span>·</span>
-                <button className="transition-colors hover:text-red-500 dark:hover:text-red-400">
-                  Delete
-                </button>
+                <DeleteFeedback id={id} />
               </>
             )}
           </div>
