@@ -8,10 +8,10 @@ import { Button } from "@/components/ui/button";
 interface TopbarProps {
   sidebarOpen: boolean;
   onToggleSidebar: () => void;
-  title?: string;
+ 
 }
 
-export function TopBar({ sidebarOpen, onToggleSidebar, title }: TopbarProps) {
+export function TopBar({ sidebarOpen, onToggleSidebar }: TopbarProps) {
   return (
     <header className="flex h-15 shrink-0 items-center gap-3 border-b border-border bg-background px-4">
       {/* Mobile sidebar toggle */}
@@ -28,9 +28,7 @@ export function TopBar({ sidebarOpen, onToggleSidebar, title }: TopbarProps) {
         )}
       </Button>
 
-      {title && (
-        <h1 className="text-sm font-semibold text-foreground">{title}</h1>
-      )}
+      
 
       <div className="ml-auto flex items-center gap-1">
         <ThemeToggle />

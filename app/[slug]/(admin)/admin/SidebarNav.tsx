@@ -44,7 +44,7 @@ export function SidebarNav({ boards }: Props) {
           Boards
         </p>
         {boards.map((board) => {
-          const href = `/${slug}/admin/boards/${board.slug}`;
+          const href = `/${slug}/admin/boards/${board.id}`;
           const isActive = pathname === href;
           return (
             <Link
