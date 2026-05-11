@@ -1,6 +1,8 @@
-import { notFound } from "next/navigation";
-import { LayoutGrid } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import prisma from "@/lib/prisma";
+import { Eye, LayoutGrid } from "lucide-react";
+import Link from "next/link";
+import { notFound } from "next/navigation";
 import { FeedbackTable } from "./FeedbackTable";
 
 interface BoardDetailPageProps {
@@ -47,9 +49,19 @@ export default async function BoardDetailPage({
   }));
   return (
     <div className=" max-w-6xl mx-auto space-y-6">
-      <div className="flex items-center gap-2">
-        <LayoutGrid className="h-5 w-5 text-muted-foreground" />
-        <h1 className="text-xl font-semibold text-foreground">{board.name}</h1>
+      <div className="flex justify-between">
+        <div className="flex items-center gap-2">
+          <LayoutGrid className="h-5 w-5 text-muted-foreground" />
+          <h1 className="text-xl font-semibold text-foreground">
+            {board.name}
+          </h1>
+        </div>
+        <Link href={`/${slug}/${board.slug}`}>
+          <Button variant="outline" className="rounded-sm cursor-pointer">
+            <Eye />
+            Public View
+          </Button>
+        </Link>
       </div>
 
       {/* Stats row */}
