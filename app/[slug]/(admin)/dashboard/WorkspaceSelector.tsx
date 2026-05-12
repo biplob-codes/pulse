@@ -10,7 +10,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Check, ChevronsUpDown, Plus } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
-import { toast } from "sonner";
+import { useState } from "react";
+import CreateWorkspaceModal from "./CreateWorkspaceModal";
 
 interface Props {
   workspaces: { name: string; slug: string }[];
@@ -18,57 +19,60 @@ interface Props {
 export function WorkspaceSelector({ workspaces }: Props) {
   const pathname = usePathname();
   const router = useRouter();
+  const [open, setOpen] = useState(false);
   const activeWorkspace = workspaces.find((ws) =>
     pathname?.startsWith(`/${ws.slug}/dashboard`),
   )!;
-  const handleNewWorkspace = () => {
-    toast.info("Creating new workspaces isn't available yet.");
-  };
 
   return (
-    <div className="px-3 py-3">
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            className="w-full justify-between px-2 h-9 font-semibold text-sm text-foreground cursor-pointer hover:bg-accent"
-          >
-            <div className="flex items-center gap-2 min-w-0">
-              <span className="truncate">{activeWorkspace.name}</span>
-            </div>
-            <ChevronsUpDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-          </Button>
-        </DropdownMenuTrigger>
-
-        <DropdownMenuContent
-          className="w-56"
-          align="start"
-          side="bottom"
-          sideOffset={4}
-        >
-          {workspaces.map((ws) => (
-            <DropdownMenuItem
-              key={ws.slug}
-              className="flex items-center gap-3 cursor-pointer"
-              onClick={() => router.push(`/${ws.slug}/dashboard`)}
+    <>
+      {" "}
+      <div className="px-3 py-3">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="ghost"
+              className="w-full justify-between px-2 h-9 font-semibold text-sm text-foreground cursor-pointer hover:bg-accent"
             >
-              <span className="flex-1 truncate text-sm">{ws.name}</span>
-              {activeWorkspace.slug === ws.slug && (
-                <Check className="h-3.5 w-3.5 text-primary" />
-              )}
-            </DropdownMenuItem>
-          ))}
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="truncate">{activeWorkspace.name}</span>
+              </div>
+              <ChevronsUpDown className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+            </Button>
+          </DropdownMenuTrigger>
 
-          <DropdownMenuSeparator />
-
-          <DropdownMenuItem
-            className="cursor-pointer text-sm py-2 text-muted-foreground"
-            onClick={handleNewWorkspace}
+          <DropdownMenuContent
+            className="w-56 rounded-sm"
+            align="start"
+            side="bottom"
+            sideOffset={4}
           >
-            <Plus /> New workspace
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
+            {workspaces.map((ws) => (
+              <DropdownMenuItem
+                key={ws.slug}
+                className="flex items-center gap-3 cursor-pointer"
+                onClick={() => router.push(`/${ws.slug}/dashboard`)}
+              >
+                <span className="flex-1 truncate text-sm">{ws.name}</span>
+                {activeWorkspace.slug === ws.slug && (
+                  <Check className="h-3.5 w-3.5 text-primary" />
+                )}
+              </DropdownMenuItem>
+            ))}
+
+            <DropdownMenuSeparator />
+
+            <DropdownMenuItem
+              className="gap-1.5 hover:text-gray-100  cursor-pointer w-full rounded-sm py-1 "
+              onSelect={() => setOpen(true)}
+            >
+              <Plus className="size-4" />
+              New Workspace
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+      <CreateWorkspaceModal open={open} onOpenChange={setOpen} />
+    </>
   );
 }

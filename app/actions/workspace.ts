@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { onboardingSchema } from "@/lib/schema";
 
-export type OnboardingState = {
+export type CreateWorkspaceState = {
   success: boolean;
   message?: string;
   fields?: {
@@ -19,9 +19,9 @@ export type OnboardingState = {
 };
 
 export async function createWorkspaceAction(
-  _prev: OnboardingState,
+  _prev: CreateWorkspaceState,
   formData: FormData,
-): Promise<OnboardingState> {
+): Promise<CreateWorkspaceState> {
   // 1. Auth check
   const session = await getSession();
 

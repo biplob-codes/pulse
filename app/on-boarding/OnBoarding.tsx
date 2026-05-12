@@ -6,7 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, Loader2, Building2, CheckCircle2 } from "lucide-react";
-import { createWorkspaceAction, OnboardingState } from "../actions/workspace";
+import {
+  createWorkspaceAction,
+  CreateWorkspaceState,
+} from "../actions/workspace";
 
 function FieldError({ messages }: { messages?: string[] }) {
   if (!messages?.length) return null;
@@ -31,7 +34,7 @@ function toSlug(value: string) {
     .slice(0, 32);
 }
 
-const initialState: OnboardingState = { success: false };
+const initialState: CreateWorkspaceState = { success: false };
 
 export default function OnBoarding() {
   const [state, action, isPending] = useActionState(
