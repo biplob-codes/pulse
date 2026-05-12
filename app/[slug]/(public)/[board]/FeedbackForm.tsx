@@ -1,10 +1,11 @@
 "use client";
 
-import { useActionState, useRef, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { createFeedbackAction, FeedbackState } from "@/app/actions/feedback";
 import { AuthModal } from "@/components/AuthModal";
+import { toast } from "sonner";
 
 const initialState: FeedbackState = {};
 interface Props {
@@ -16,6 +17,9 @@ export function FeedbackForm({ context, isAuthenticated }: Props) {
   const [state, formAction, isPending] = useActionState(action, initialState);
   const formRef = useRef<HTMLFormElement>(null);
   const [openAuthModal, setOpenAuthModal] = useState(false);
+  useEffect(() => {
+    if (!state.success && state.message) toast.error(state.message);
+  }, [state]);
   return (
     <div className="rounded-sm border border-gray-150 bg-background mb-5">
       <form ref={formRef} action={formAction}>
