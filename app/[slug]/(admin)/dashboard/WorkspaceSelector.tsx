@@ -1,8 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { Check, ChevronsUpDown, Plus } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,15 +8,19 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
+import { Check, ChevronsUpDown, Plus } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 interface Props {
-  workspaces: { id: string; name: string; slug: string }[];
+  workspaces: { name: string; slug: string }[];
 }
-export function WorkspaceSwitcher({ workspaces }: Props) {
-  const [activeWorkspace, setActiveWorkspace] = useState(workspaces[0]);
-
+export function WorkspaceSelector({ workspaces }: Props) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const activeWorkspace = workspaces.find((ws) =>
+    pathname?.startsWith(`/${ws.slug}/dashboard`),
+  )!;
   const handleNewWorkspace = () => {
     toast.info("Creating new workspaces isn't available yet.");
   };
@@ -46,12 +48,12 @@ export function WorkspaceSwitcher({ workspaces }: Props) {
         >
           {workspaces.map((ws) => (
             <DropdownMenuItem
-              key={ws.id}
+              key={ws.slug}
               className="flex items-center gap-3 cursor-pointer"
-              onClick={() => setActiveWorkspace(ws)}
+              onClick={() => router.push(`/${ws.slug}/dashboard`)}
             >
               <span className="flex-1 truncate text-sm">{ws.name}</span>
-              {activeWorkspace.id === ws.id && (
+              {activeWorkspace.slug === ws.slug && (
                 <Check className="h-3.5 w-3.5 text-primary" />
               )}
             </DropdownMenuItem>

@@ -6,12 +6,11 @@ import { Lightbulb, Map, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface Props {
-  boards: { id: string; name: string; slug: string }[];
+  boards: { id: string; name: string }[];
 }
-export function SidebarNav({ boards }: Props) {
+export function SidebarLinks({ boards }: Props) {
   const pathname = usePathname();
   const slug = useParams()["slug"];
-  console.log("params:", useParams());
   const staticLinks = [
     { href: `/${slug}/dashboard/roadmap`, label: "Roadmap", icon: Map },
     {
@@ -21,8 +20,7 @@ export function SidebarNav({ boards }: Props) {
     },
   ];
   return (
-    <nav className="flex flex-col gap-0.5 px-3 py-2">
-      {/* Static links */}
+    <nav className="flex flex-col gap-0.5 px-3 py-1 md:py-2">
       {staticLinks.map(({ href, label, icon: Icon }) => {
         const isActive = pathname === href;
         return (

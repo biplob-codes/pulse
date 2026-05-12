@@ -1,9 +1,15 @@
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { Separator } from "@/components/ui/separator";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { getSession } from "@/lib/auth-session";
 import prisma from "@/lib/prisma";
-import { redirect } from "next/navigation";
+import { cn } from "@/lib/utils";
+import { notFound, redirect } from "next/navigation";
 import React from "react";
-import { DashboardLayout } from "./DashboardLayout";
-import { DashboardSidebar } from "./DashboardSidebar";
+import { SidebarUserProfile } from "./SidebarUserProfile";
+import { WorkspaceSelector } from "./WorkspaceSelector";
+import { Menu } from "lucide-react";
+import { SidebarLinks } from "./SidebarLinks";
 
 const layout = async ({
   children,
@@ -14,16 +20,19 @@ const layout = async ({
 }) => {
   const session = await getSession();
   if (!session) redirect("/");
-  const slug = (await params).slug;
+  const { slug } = await params;
 
-  const workspaces = await prisma.workspaceMember.findMany({
+  const workspaceMember = await prisma.workspaceMember.findFirst({
     where: {
       userId: session.user.id,
+      workspace: {
+        slug,
+      },
     },
     include: {
       workspace: {
         select: {
-          boards: true,
+          boards: { select: { id: true, name: true } },
           name: true,
           slug: true,
           id: true,
@@ -31,30 +40,66 @@ const layout = async ({
       },
     },
   });
+  if (!workspaceMember) notFound();
 
-  if (workspaces.length === 0) redirect("/");
+  const ws = await prisma.workspaceMember.findMany({
+    where: {
+      userId: session.user.id,
+    },
+    select: {
+      workspace: {
+        select: {
+          name: true,
+          slug: true,
+        },
+      },
+    },
+  });
 
-  const slugs = workspaces.map((wm) => wm.workspace.slug);
-
-  if (!slugs.includes(slug)) redirect("/");
-
-  const userObject = {
-    ...session.user,
-    image: session.user.image ? session.user.image : null,
-  };
-
+  const { workspace } = workspaceMember;
+  const workspaces = ws.map((w) => w.workspace);
   return (
-    <DashboardLayout
-      Sidebar={
-        <DashboardSidebar
-          boards={workspaces[0]?.workspace.boards}
-          user={userObject}
-          workspaces={workspaces.map((wm) => wm.workspace)}
-        />
-      }
-    >
-      {children}
-    </DashboardLayout>
+    <div className="flex h-screen w-full overflow-hidden bg-background">
+      <div className="hidden md:flex">
+        <aside className="flex h-full w-60 shrink-0 flex-col border-r border-border bg-background">
+          <WorkspaceSelector workspaces={workspaces} />
+          <Separator />
+          <div className="flex-1 overflow-y-auto">
+            <SidebarLinks boards={workspace.boards} />
+          </div>
+          <SidebarUserProfile user={session.user} />
+        </aside>
+      </div>
+
+      <div className="flex flex-1 flex-col overflow-hidden">
+        <header className="flex h-15 shrink-0 items-center gap-3 border-b border-border bg-background px-4">
+          <Sheet>
+            <SheetTrigger className="md:hidden">
+              <Menu />
+            </SheetTrigger>
+            <SheetContent
+              className="flex h-full w-60 shrink-0 flex-col border-r border-border bg-background"
+              side="left"
+              showCloseButton={false}
+            >
+              <WorkspaceSelector workspaces={workspaces} />
+              <Separator />
+              <div className="flex-1 overflow-y-auto">
+                <SidebarLinks boards={workspace.boards} />
+              </div>
+              <SidebarUserProfile user={session.user} />
+            </SheetContent>
+          </Sheet>
+
+          <div className="ml-auto flex items-center gap-1">
+            <ThemeToggle />
+          </div>
+        </header>
+        <main className={cn("flex-1 overflow-y-auto p-4 sm:p-6")}>
+          {children}
+        </main>
+      </div>
+    </div>
   );
 };
 

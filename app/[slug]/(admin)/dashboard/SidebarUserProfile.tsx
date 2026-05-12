@@ -1,6 +1,5 @@
 "use client";
 
-import { LogOut, Settings } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,11 +7,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { User } from "@/app/generated/prisma/client";
 import UserAvatar from "@/components/UserAvatar";
+import { LogOut, Settings } from "lucide-react";
 
 interface Props {
-  user: User;
+  user: {
+    name: string;
+    email: string;
+    image?: string | null;
+  };
 }
 
 export function SidebarUserProfile({ user }: Props) {
