@@ -8,7 +8,7 @@ interface Props {
   user: User;
   workspaces: { id: string; name: string; slug: string }[];
 }
-export function AdminSidebar({ boards, user, workspaces }: Props) {
+export function DashboardSidebar({ boards, user, workspaces }: Props) {
   return (
     <aside className="flex h-full w-60 shrink-0 flex-col border-r border-border bg-background">
       {/* Workspace switcher at top */}

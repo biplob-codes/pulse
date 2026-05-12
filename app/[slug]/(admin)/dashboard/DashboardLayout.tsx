@@ -5,13 +5,13 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { TopBar } from "./TopBar";
 
-interface AdminLayoutProps {
+interface DashboardLayoutProps {
   children: React.ReactNode;
   pageTitle?: string;
   Sidebar: React.ReactNode;
 }
 
-export function AdminLayout({ children, Sidebar }: AdminLayoutProps) {
+export function DashboardLayout({ children, Sidebar }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (

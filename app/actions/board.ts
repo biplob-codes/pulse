@@ -93,7 +93,7 @@ export async function createBoardAction(
       workspaceId: workspace.id,
     },
   });
-  revalidatePath(`/${workspaceSlug}/admin`);
+  revalidatePath(`/${workspaceSlug}/dashboard`);
   return {
     success: true,
     message: "Board created successfully.",

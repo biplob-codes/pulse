@@ -200,5 +200,5 @@ export async function updateFeedbackStatusAction(
     data: { status },
   });
 
-  revalidatePath(`/${workspaceSlug}/admin/boards/${boardId}`);
+  revalidatePath(`/${workspaceSlug}/dashboard/boards/${boardId}`);
 }

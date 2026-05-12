@@ -42,7 +42,7 @@ export default function CreateBoardForm() {
   }, [state.errors]);
   useEffect(() => {
     if (state.success) {
-      redirect(`/${workspaceSlug}/admin`);
+      redirect(`/${workspaceSlug}/dashboard`);
     }
   }, [state.success]);
   return (

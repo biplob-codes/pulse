@@ -2,8 +2,8 @@ import { getSession } from "@/lib/auth-session";
 import prisma from "@/lib/prisma";
 import { redirect } from "next/navigation";
 import React from "react";
-import { AdminLayout } from "./AdminLayout";
-import { AdminSidebar } from "./Sidebar";
+import { DashboardLayout } from "./DashboardLayout";
+import { DashboardSidebar } from "./DashboardSidebar";
 
 const layout = async ({
   children,
@@ -44,9 +44,9 @@ const layout = async ({
   };
 
   return (
-    <AdminLayout
+    <DashboardLayout
       Sidebar={
-        <AdminSidebar
+        <DashboardSidebar
           boards={workspaces[0]?.workspace.boards}
           user={userObject}
           workspaces={workspaces.map((wm) => wm.workspace)}
@@ -54,7 +54,7 @@ const layout = async ({
       }
     >
       {children}
-    </AdminLayout>
+    </DashboardLayout>
   );
 };
 

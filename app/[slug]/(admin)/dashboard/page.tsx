@@ -1,4 +1,8 @@
-const AdminPage = async ({ params }: { params: Promise<{ slug: string }> }) => {
+const DashboardPage = async ({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) => {
   const slug = (await params).slug;
   return (
     <div className="flex flex-col gap-4">
@@ -10,4 +14,4 @@ const AdminPage = async ({ params }: { params: Promise<{ slug: string }> }) => {
   );
 };
 
-export default AdminPage;
+export default DashboardPage;

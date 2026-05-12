@@ -79,5 +79,5 @@ export async function createWorkspaceAction(
   });
 
   // 5. Redirect to the new workspace
-  redirect(`/${slug}/admin`);
+  redirect(`/${slug}/dashboard`);
 }

@@ -13,8 +13,12 @@ export function SidebarNav({ boards }: Props) {
   const slug = useParams()["slug"];
   console.log("params:", useParams());
   const staticLinks = [
-    { href: `/${slug}/admin/roadmap`, label: "Roadmap", icon: Map },
-    { href: `/${slug}/admin/create-board`, label: "Create Board", icon: Plus },
+    { href: `/${slug}/dashboard/roadmap`, label: "Roadmap", icon: Map },
+    {
+      href: `/${slug}/dashboard/create-board`,
+      label: "Create Board",
+      icon: Plus,
+    },
   ];
   return (
     <nav className="flex flex-col gap-0.5 px-3 py-2">
@@ -44,7 +48,7 @@ export function SidebarNav({ boards }: Props) {
           Boards
         </p>
         {boards.map((board) => {
-          const href = `/${slug}/admin/boards/${board.id}`;
+          const href = `/${slug}/dashboard/boards/${board.id}`;
           const isActive = pathname === href;
           return (
             <Link
