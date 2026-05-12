@@ -96,7 +96,8 @@ model Comment {
   authorId   String
   author     User     @relation(fields: [authorId], references: [id])
   createdAt  DateTime @default(now())
-
+  isPinned   Boolean @default(false)
+  isMemberReply Boolean @default(false)
   @@index([feedbackId])
   @@index([authorId])
   @@map("comment")
