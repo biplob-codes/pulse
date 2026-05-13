@@ -1,10 +1,10 @@
-import React from "react";
-import { VotersList } from "./VotersList";
-import prisma from "@/lib/prisma";
-import { FeedbackCard } from "./FeedbackCard";
 import { getSession } from "@/lib/auth-session";
+import prisma from "@/lib/prisma";
+import ActivityFeedHeader from "./ActivityFeedHeader";
 import CommentInput from "./CommentInput";
-import CommentList from "./CommentList";
+import { CommentItem } from "./CommentItem";
+import { FeedbackCard } from "./FeedbackCard";
+import { VotersList } from "./VotersList";
 interface Props {
   params: Promise<{
     feedback: string;
@@ -62,7 +62,19 @@ const FeedbackDetailsPage = async ({ params }: Props) => {
           boardSlug={boardSlug}
           workspaceSlug={workspaceSlug}
         />
-        <CommentList comments={feedback.comments} />
+        <ActivityFeedHeader />
+        {feedback.comments.length === 0 && (
+          <p className="py-6 text-center text-sm text-muted-foreground">
+            No comments yet.
+          </p>
+        )}
+        {feedback.comments.map((comment) => (
+          <CommentItem
+            key={comment.id}
+            comment={comment}
+            currentUserId={session?.user.id}
+          />
+        ))}
       </div>
     </div>
   );
