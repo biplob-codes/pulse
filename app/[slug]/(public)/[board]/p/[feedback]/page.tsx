@@ -1,8 +1,7 @@
 import { getSession } from "@/lib/auth-session";
 import prisma from "@/lib/prisma";
-import ActivityFeedHeader from "./ActivityFeedHeader";
 import CommentInput from "./CommentInput";
-import { CommentItem } from "./CommentItem";
+import CommentSection from "./CommentSection";
 import { FeedbackCard } from "./FeedbackCard";
 import { VotersList } from "./VotersList";
 interface Props {
@@ -62,21 +61,12 @@ const FeedbackDetailsPage = async ({ params }: Props) => {
           boardSlug={boardSlug}
           workspaceSlug={workspaceSlug}
         />
-        <ActivityFeedHeader />
-        {feedback.comments.length === 0 && (
-          <p className="py-6 text-center text-sm text-muted-foreground">
-            No comments yet.
-          </p>
-        )}
-        {feedback.comments.map((comment) => (
-          <CommentItem
-            key={comment.id}
-            comment={comment}
-            currentUserId={session?.user.id}
-            boardSlug={boardSlug}
-            workspaceSlug={workspaceSlug}
-          />
-        ))}
+        <CommentSection
+          comments={feedback.comments}
+          currentUserId={session?.user.id}
+          boardSlug={boardSlug}
+          workspaceSlug={workspaceSlug}
+        />
       </div>
     </div>
   );
