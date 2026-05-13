@@ -57,3 +57,37 @@ export async function createCommentAction(
     return { success: false };
   }
 }
+interface DeleteCommentState {
+  error?: string;
+  message?: string;
+  success?: boolean;
+}
+export const deleteCommentAction = async (
+  context: {
+    commentId: string;
+    workspaceSlug: string;
+    boardSlug: string;
+  },
+  prevState: DeleteCommentState,
+  formData: FormData,
+): Promise<DeleteCommentState> => {
+  const session = await getSession();
+  if (!session) redirect("/");
+  try {
+    const comment = await prisma.comment.findUnique({
+      where: { id: context.commentId },
+    });
+    if (!comment) {
+      return { success: false, message: "Comment not found" };
+    }
+    if (comment.authorId !== session.user.id) {
+      return { success: false, message: "Unauthorize" };
+    }
+
+    await prisma.comment.delete({ where: { id: context.commentId } });
+    revalidatePath(`/${context.workspaceSlug}/${context.boardSlug}`);
+    return { success: true };
+  } catch (e) {
+    return { success: false };
+  }
+};

@@ -2,7 +2,7 @@
 
 import UserAvatar from "@/components/UserAvatar";
 import { formatCommentDate } from "@/lib/utils"; // your utility fn
-import { X } from "lucide-react";
+import { DeleteCommentModal } from "./DeleteCommentModal";
 
 interface Props {
   comment: {
@@ -16,8 +16,15 @@ interface Props {
     createdAt: Date;
   };
   currentUserId?: string;
+  workspaceSlug: string;
+  boardSlug: string;
 }
-export function CommentItem({ comment, currentUserId }: Props) {
+export function CommentItem({
+  comment,
+  currentUserId,
+  boardSlug,
+  workspaceSlug,
+}: Props) {
   const isAuthor = currentUserId === comment.author.id;
 
   return (
@@ -51,12 +58,11 @@ export function CommentItem({ comment, currentUserId }: Props) {
           </div>
 
           {isAuthor && (
-            <button
-              //   onClick={onDelete}
-              className="text-muted-foreground hover:text-foreground transition-colors mt-0.5 shrink-0"
-            >
-              <X className="h-4 w-4" />
-            </button>
+            <DeleteCommentModal
+              commentId={comment.id}
+              boardSlug={boardSlug}
+              workspaceSlug={workspaceSlug}
+            />
           )}
         </div>
       </div>

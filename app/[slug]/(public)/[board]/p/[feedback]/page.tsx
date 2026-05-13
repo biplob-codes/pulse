@@ -73,6 +73,8 @@ const FeedbackDetailsPage = async ({ params }: Props) => {
             key={comment.id}
             comment={comment}
             currentUserId={session?.user.id}
+            boardSlug={boardSlug}
+            workspaceSlug={workspaceSlug}
           />
         ))}
       </div>
