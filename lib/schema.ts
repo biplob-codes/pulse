@@ -88,3 +88,6 @@ export const createFeedbackSchema = z.object({
 });
 
 export type CreateFeedbackInput = z.infer<typeof createFeedbackSchema>;
+export const createCommentSchema=z.object({
+  content:z.string().min(3,"Comment must be at least 3 character")
+})

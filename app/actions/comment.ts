@@ -2,41 +2,56 @@
 
 import { getSession } from "@/lib/auth-session";
 import prisma from "@/lib/prisma";
+import { createCommentSchema } from "@/lib/schema";
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 interface CommentContext {
   feedbackId: string;
+  boardSlug: string;
+  workspaceSlug: string;
 }
 
-interface ActionState {
+export interface CommentActionState {
   error?: string;
   success?: boolean;
+  fields?: {
+    content?: string;
+  };
+  errors?: {
+    content?: string[];
+  };
 }
 
 export async function createCommentAction(
   context: CommentContext,
-  _prevState: ActionState,
+  _prevState: CommentActionState,
   formData: FormData,
-): Promise<ActionState> {
+): Promise<CommentActionState> {
   const session = await getSession();
   if (!session) redirect("/");
-  const comment = formData.get("comment");
+  const raw = { content: formData.get("content") as string };
 
-  if (!comment || typeof comment !== "string" || !comment.trim()) {
-    return { error: "Comment cannot be empty." };
-  }
+  const fields = { content: raw.content };
 
-  if (comment.trim().length < 3) {
-    return { error: "Comment is too short." };
+  const parsed = createCommentSchema.safeParse(raw);
+
+  if (!parsed.success) {
+    return {
+      success: false,
+      fields,
+      errors: parsed.error.flatten().fieldErrors,
+    };
   }
   try {
     await prisma.comment.create({
       data: {
         feedbackId: context.feedbackId,
-        content: comment,
+        content: raw.content,
         authorId: session.user.id,
       },
     });
+    revalidatePath(`/${context.workspaceSlug}/${context.boardSlug}`);
     return { success: true };
   } catch (error) {
     return { success: false };

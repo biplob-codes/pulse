@@ -13,15 +13,20 @@ interface Props {
   }>;
 }
 const FeedbackDetailsPage = async ({ params }: Props) => {
-  const { feedback: slug, slug: workspaceSlug, board } = await params;
+  const {
+    feedback: feedbackSlug,
+    slug: workspaceSlug,
+    board: boardSlug,
+  } = await params;
   const feedback = await prisma.feedback.findUnique({
     where: {
-      slug,
+      slug: feedbackSlug,
     },
     include: {
       votes: { include: { user: true } },
       author: { select: { id: true, name: true, image: true } },
       comments: {
+        orderBy: { createdAt: "desc" },
         include: { author: { select: { id: true, name: true, image: true } } },
       },
     },
@@ -48,12 +53,14 @@ const FeedbackDetailsPage = async ({ params }: Props) => {
           createdAt={feedback.createdAt}
           currentUser={session?.user}
           workspaceSlug={workspaceSlug}
-          boardSlug={board}
+          boardSlug={boardSlug}
           votes={feedback.votes}
         />
         <CommentInput
           isAuthenticated={!!session?.user}
           feedbackId={feedback.id}
+          boardSlug={boardSlug}
+          workspaceSlug={workspaceSlug}
         />
         <CommentList comments={feedback.comments} />
       </div>

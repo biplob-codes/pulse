@@ -4,37 +4,39 @@ import { useActionState, useRef, useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Paperclip, Loader2 } from "lucide-react";
-import { createCommentAction } from "@/app/actions/comment";
+import { CommentActionState, createCommentAction } from "@/app/actions/comment";
 import { AuthModal } from "@/components/AuthModal";
 
-interface CommentInputProps {
+interface Props {
   feedbackId: string;
   isAuthenticated: boolean;
-}
-
-interface ActionState {
-  error?: string;
-  success?: boolean;
+  boardSlug: string;
+  workspaceSlug: string;
 }
 
 export default function CommentInput({
   feedbackId,
   isAuthenticated,
-}: CommentInputProps) {
+  boardSlug,
+  workspaceSlug,
+}: Props) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [value, setValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [openAuthModal, setOpenAuthModal] = useState(false);
   // Bind feedbackId into the server action via a context object
-  const boundAction = createCommentAction.bind(null, { feedbackId });
+  const boundAction = createCommentAction.bind(null, {
+    feedbackId,
+    boardSlug,
+    workspaceSlug,
+  });
 
-  const [state, formAction, isPending] = useActionState<ActionState, FormData>(
-    boundAction,
-    {},
-  );
+  const [state, formAction, isPending] = useActionState<
+    CommentActionState,
+    FormData
+  >(boundAction, {});
 
-  // Expand when user focuses or types; collapse when clicking outside with empty input
   const handleFocus = () => setIsExpanded(true);
 
   useEffect(() => {
@@ -51,7 +53,6 @@ export default function CommentInput({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [value]);
 
-  // Reset on success
   useEffect(() => {
     if (state?.success) {
       setValue("");
@@ -69,7 +70,7 @@ export default function CommentInput({
         ].join(" ")}
       >
         <form action={formAction}>
-          <input type="hidden" name="comment" value={value} />
+          <input type="hidden" name="content" value={value} />
 
           <Input
             ref={inputRef}
@@ -85,7 +86,6 @@ export default function CommentInput({
             ].join(" ")}
           />
 
-          {/* ── Action bar — slides in/out ── */}
           <div
             className={[
               "overflow-hidden transition-all duration-200 ease-in-out",
@@ -112,7 +112,11 @@ export default function CommentInput({
                 {/* <span className="text-xs text-muted-foreground hidden sm:block">
                   The post author and voters will get an email.
                 </span> */}
-
+                {state.errors?.content && (
+                  <p className="mt-1 ml-3 text-xs text-destructive">
+                    {state.errors.content[0]}
+                  </p>
+                )}
                 <Button
                   type="submit"
                   disabled={!value.trim() || isPending}
