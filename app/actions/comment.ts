@@ -15,6 +15,7 @@ interface CommentContext {
 export interface CommentActionState {
   error?: string;
   success?: boolean;
+  message?: string;
   fields?: {
     content?: string;
   };
@@ -91,3 +92,48 @@ export const deleteCommentAction = async (
     return { success: false };
   }
 };
+
+export async function updateCommentAction(
+  context: {
+    commentId: string;
+    workspaceSlug: string;
+    boardSlug: string;
+  },
+  _prevState: CommentActionState,
+  formData: FormData,
+): Promise<CommentActionState> {
+  const session = await getSession();
+  if (!session) redirect("/");
+
+  const raw = { content: formData.get("content") as string };
+
+  const fields = { content: raw.content };
+
+  const parsed = createCommentSchema.safeParse(raw);
+
+  if (!parsed.success) {
+    return {
+      success: false,
+      fields,
+      errors: parsed.error.flatten().fieldErrors,
+    };
+  }
+  try {
+    const comment = await prisma.comment.findUnique({
+      where: { id: context.commentId },
+    });
+    if (comment?.authorId !== session.user.id)
+      return { success: false, message: "Unauthorize" };
+
+    await prisma.comment.update({
+      where: { id: context.commentId },
+      data: {
+        content: raw.content,
+      },
+    });
+    revalidatePath(`/${context.workspaceSlug}/${context.boardSlug}`);
+    return { success: true };
+  } catch (error) {
+    return { success: false };
+  }
+}

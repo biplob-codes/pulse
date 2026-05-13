@@ -1,8 +1,7 @@
-"use client";
-
 import UserAvatar from "@/components/UserAvatar";
 import { formatCommentDate } from "@/lib/utils"; // your utility fn
 import { DeleteCommentModal } from "./DeleteCommentModal";
+import { EditCommentModal } from "./EditCommentModal";
 
 interface Props {
   comment: {
@@ -46,12 +45,12 @@ export function CommentItem({
               {isAuthor && (
                 <>
                   <span>·</span>
-                  <button
-                    // onClick={onEdit}
-                    className="hover:text-foreground transition-colors"
-                  >
-                    Edit Comment
-                  </button>
+                  <EditCommentModal
+                    commentId={comment.id}
+                    boardSlug={boardSlug}
+                    workspaceSlug={workspaceSlug}
+                    content={comment.content}
+                  />
                 </>
               )}
             </div>
