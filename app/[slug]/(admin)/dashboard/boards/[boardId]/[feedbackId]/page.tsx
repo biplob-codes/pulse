@@ -5,6 +5,7 @@ import { Calendar, Link as PublicLink } from "lucide-react";
 import Link from "next/link";
 import FeedbackComments from "./FeedbackComments";
 import { StatusDropdown } from "./StatusDropdown";
+import { PinComment } from "@/components/PinComment";
 interface PageProps {
   params: Promise<{
     feedbackId: string;
@@ -12,7 +13,6 @@ interface PageProps {
 }
 const page = async ({ params }: PageProps) => {
   const { feedbackId } = await params;
-
   const feedback = await prisma.feedback.findFirst({
     where: {
       id: feedbackId,
@@ -34,7 +34,7 @@ const page = async ({ params }: PageProps) => {
   if (!feedback) return <div>Feedback not found</div>;
 
   const publicLink = `/${feedback.board.workspace.slug}/${feedback.board.slug}/p/${feedback.slug}`;
-
+  const pinnedComment = feedback.comments.find((c) => c.isPinned);
   return (
     <div className="flex h-[calc(100vh-6rem)] overflow-hidden">
       <div className="flex flex-col flex-1 min-w-0 border-r border-zinc-200 dark:border-zinc-800">
@@ -52,7 +52,9 @@ const page = async ({ params }: PageProps) => {
             )}
           </div>
 
-          {/* Comments */}
+          {pinnedComment && (
+            <PinComment comment={pinnedComment} isAdmin={true} />
+          )}
           <div className="pr-4 mt-5">
             <FeedbackComments comments={feedback.comments} />
           </div>

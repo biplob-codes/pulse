@@ -158,3 +158,65 @@ export async function updateCommentAction(
     return { success: false };
   }
 }
+
+export async function togglePinComment(commentId: string) {
+  try {
+    const session = await getSession();
+    if (!session) return { success: false, message: "Unauthorized" };
+
+    // check if the user is an admin/owner of the workspace
+    const comment = await prisma.comment.findUnique({
+      where: { id: commentId },
+      include: {
+        feedback: {
+          select: {
+            board: {
+              select: {
+                workspace: {
+                  select: {
+                    members: {
+                      where: { userId: session.user.id },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!comment) return { success: false, message: "Comment not found" };
+
+    const member = comment.feedback.board.workspace.members[0];
+    if (!member)
+      return { success: false, message: "Not authorize to pin comments" };
+
+    // if trying to pin, unpin the current pinned one first
+    if (!comment.isPinned) {
+      await prisma.$transaction([
+        prisma.comment.updateMany({
+          where: { feedbackId: comment.feedbackId, isPinned: true },
+          data: { isPinned: false },
+        }),
+        prisma.comment.update({
+          where: { id: commentId },
+          data: { isPinned: true },
+        }),
+      ]);
+    } else {
+      // just unpin
+      await prisma.comment.update({
+        where: { id: commentId },
+        data: { isPinned: false },
+      });
+    }
+
+    return {
+      success: true,
+      message: comment.isPinned ? "Comment unpinned" : "Comment pinned",
+    };
+  } catch {
+    return { success: false, message: "Something went wrong" };
+  }
+}

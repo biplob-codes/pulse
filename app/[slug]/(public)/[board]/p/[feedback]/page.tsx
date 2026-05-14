@@ -4,6 +4,7 @@ import CommentInput from "./CommentInput";
 import CommentSection from "./CommentSection";
 import { FeedbackCard } from "./FeedbackCard";
 import { VotersList } from "./VotersList";
+import { PinComment } from "@/components/PinComment";
 interface Props {
   params: Promise<{
     feedback: string;
@@ -35,6 +36,7 @@ const FeedbackDetailsPage = async ({ params }: Props) => {
   }
   const voters = feedback?.votes.map((v) => v.user);
   const session = await getSession();
+  const pinnedComment = feedback.comments.find((c) => c.isPinned);
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3">
       <div className="  px-3 py-4">
@@ -61,6 +63,12 @@ const FeedbackDetailsPage = async ({ params }: Props) => {
           boardSlug={boardSlug}
           workspaceSlug={workspaceSlug}
         />
+        {pinnedComment && (
+          <PinComment
+            comment={pinnedComment}
+            currentUserId={session?.user.id}
+          />
+        )}
         <CommentSection
           comments={feedback.comments}
           currentUserId={session?.user.id}

@@ -1,6 +1,4 @@
 "use client";
-import { deleteCommentAction } from "@/app/actions/comment";
-import { DeleteModal } from "@/components/DeleteModal";
 import {
   Select,
   SelectContent,
@@ -8,11 +6,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import UserAvatar from "@/components/UserAvatar";
-import { formatCommentDate } from "@/lib/utils";
-import { Dot, X } from "lucide-react";
 import { useEffect, useState } from "react";
-interface Comment {
+import Comment from "./Comment";
+interface CommentProps {
   id: string;
   author: {
     id: string;
@@ -21,12 +17,10 @@ interface Comment {
   };
   content: string;
   createdAt: Date;
+  isPinned: boolean;
 }
 interface Props {
-  comments: Comment[];
-  //   currentUserId?: string;
-  //   workspaceSlug: string;
-  //   boardSlug: string;
+  comments: CommentProps[];
 }
 type SortOption = "newest" | "oldest";
 
@@ -34,12 +28,7 @@ const SORT_OPTIONS: { value: SortOption; label: string }[] = [
   { value: "newest", label: "Newest first" },
   { value: "oldest", label: "Oldest first" },
 ];
-const FeedbackComments = ({
-  comments,
-  //   currentUserId,
-  //   boardSlug,
-  //   workspaceSlug,
-}: Props) => {
+const FeedbackComments = ({ comments }: Props) => {
   const [sort, setSort] = useState<SortOption>("newest");
   const [localComments, setLocalComments] = useState<Comment[]>(comments);
   useEffect(() => {
@@ -86,39 +75,7 @@ const FeedbackComments = ({
         </p>
       )}
       {sorted.map((comment) => (
-        <div className="flex items-start gap-3 py-3">
-          <UserAvatar user={comment.author} />
-
-          <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between gap-2">
-              <div className="flex-1">
-                <p className="text-sm font-semibold text-foreground mb-0.5">
-                  {comment.author.name}
-                </p>
-                <p className="text-sm text-gray-900 dark:text-zinc-300">
-                  {comment.content}
-                </p>
-
-                <div className="flex items-center gap-1.5 mt-1.5 text-xs text-muted-foreground">
-                  <span>{formatCommentDate(comment.createdAt)}</span>
-                  <Dot className="h-2 w-2 " />
-                  <span>Pin Comment</span>
-                </div>
-              </div>
-
-              <DeleteModal
-                action={deleteCommentAction.bind(null, {
-                  commentId: comment.id,
-                })}
-                title="Delete Comment"
-                description="This comment will be permanently deleted and cannot be recovered."
-                refreshOnSuccess={true}
-              >
-                <X className="h-5 w-5 hover:text-gray-700  text-gray-500 dark:text-foreground dark:hover:text-gray-500" />
-              </DeleteModal>
-            </div>
-          </div>
-        </div>
+        <Comment comment={comment} />
       ))}
     </div>
   );
