@@ -56,17 +56,21 @@ export function StatusDropdown({
       onValueChange={handleChange}
       disabled={isPending}
     >
-      <SelectTrigger className="w-full">
+      <SelectTrigger className="w-full rounded-sm cursor-pointer">
         {isPending ? (
           <Loader2 className="h-3.5 w-3.5 animate-spin" />
         ) : (
           <SelectValue />
         )}
       </SelectTrigger>
-      <SelectContent>
+      <SelectContent className="rounded-sm" position="popper">
         {Object.entries(STATUS_LABELS).map(([value, label]) => (
-          <SelectItem key={value} value={value}>
-            <div className="flex items-center gap-2">{label}</div>
+          <SelectItem
+            key={value}
+            value={value}
+            className="cursor-pointer rounded-sm transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground my-1"
+          >
+            {label}
           </SelectItem>
         ))}
       </SelectContent>
