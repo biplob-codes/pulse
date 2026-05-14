@@ -9,7 +9,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Loader2 } from "lucide-react";
-import { ReactNode, useActionState, useState } from "react";
+import { useRouter } from "next/navigation";
+import { ReactNode, useActionState, useEffect, useState } from "react";
 
 interface ActionState {
   error?: string;
@@ -21,13 +22,27 @@ interface Props {
   description: string;
   action: (prevState: ActionState, formData: FormData) => Promise<ActionState>;
   children: ReactNode;
+  refreshOnSuccess?: boolean;
 }
-export function DeleteModal({ title, description, action, children }: Props) {
+export function DeleteModal({
+  title,
+  description,
+  action,
+  children,
+  refreshOnSuccess = false,
+}: Props) {
   const [open, setOpen] = useState(false);
+  const router = useRouter();
   const [state, formAction, isPending] = useActionState<ActionState, FormData>(
     action,
     {} as ActionState,
   );
+  useEffect(() => {
+    if (state.success && refreshOnSuccess) {
+      setOpen(false);
+      router.refresh();
+    }
+  }, [state.success]);
 
   return (
     <>

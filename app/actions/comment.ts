@@ -66,8 +66,8 @@ interface DeleteCommentState {
 export const deleteCommentAction = async (
   context: {
     commentId: string;
-    workspaceSlug: string;
-    boardSlug: string;
+    workspaceSlug?: string;
+    boardSlug?: string;
   },
   prevState: DeleteCommentState,
   formData: FormData,
@@ -77,16 +77,37 @@ export const deleteCommentAction = async (
   try {
     const comment = await prisma.comment.findUnique({
       where: { id: context.commentId },
+      select: {
+        authorId: true,
+        feedback: {
+          select: {
+            board: {
+              select: {
+                workspace: {
+                  select: { members: { select: { userId: true } } },
+                },
+              },
+            },
+          },
+        },
+      },
     });
     if (!comment) {
       return { success: false, message: "Comment not found" };
     }
-    if (comment.authorId !== session.user.id) {
+    const isWorkSpaceMember = comment.feedback.board.workspace.members.find(
+      (u) => u.userId === session.user.id,
+    );
+
+    if (comment.authorId !== session.user.id && !isWorkSpaceMember) {
       return { success: false, message: "Unauthorize" };
     }
 
     await prisma.comment.delete({ where: { id: context.commentId } });
-    revalidatePath(`/${context.workspaceSlug}/${context.boardSlug}`);
+
+    if (context.workspaceSlug && context.boardSlug) {
+      revalidatePath(`/${context.workspaceSlug}/${context.boardSlug}`);
+    }
     return { success: true };
   } catch (e) {
     return { success: false };
