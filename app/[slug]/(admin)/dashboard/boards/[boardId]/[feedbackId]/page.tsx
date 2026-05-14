@@ -1,4 +1,4 @@
-import UserAvatar from "@/components/UserAvatar";
+import UserBadge from "@/components/UserBadge";
 import prisma from "@/lib/prisma";
 import { formatDate } from "@/lib/utils";
 import { Calendar, Link as PublicLink } from "lucide-react";
@@ -86,17 +86,7 @@ const page = async ({ params }: PageProps) => {
         {/* Submitted by */}
         <section>
           <p className="text font-semibold mb-2">Submitted By</p>
-          <div className="flex items-center gap-2">
-            <UserAvatar user={feedback.author} />
-            <div className="min-w-0">
-              <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200 truncate">
-                {feedback.author.name}
-              </p>
-              <p className="text-xs text-zinc-400 dark:text-zinc-500 truncate">
-                {feedback.author.email}
-              </p>
-            </div>
-          </div>
+          <UserBadge user={feedback.author} />
         </section>
 
         <section>

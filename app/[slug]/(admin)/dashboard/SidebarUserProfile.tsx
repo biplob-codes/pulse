@@ -8,6 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import UserAvatar from "@/components/UserAvatar";
+import UserBadge from "@/components/UserBadge";
 import { LogOut, Settings } from "lucide-react";
 
 interface Props {
@@ -24,15 +25,7 @@ export function SidebarUserProfile({ user }: Props) {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button className="flex w-full items-center gap-2.5 rounded-md px-2 py-2 text-left text-sm transition-colors hover:bg-accent focus:outline-none">
-            <UserAvatar user={user} />
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-xs font-medium text-foreground leading-tight">
-                {user.name}
-              </p>
-              <p className="truncate text-[11px] text-muted-foreground leading-tight mt-0.5">
-                {user.email}
-              </p>
-            </div>
+            <UserBadge user={user} />
           </button>
         </DropdownMenuTrigger>
 
