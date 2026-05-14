@@ -1,6 +1,5 @@
 "use client";
 
-import { deleteFeedbackAction } from "@/app/actions/feedback";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -10,27 +9,24 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Loader2 } from "lucide-react";
-import { useActionState, useState } from "react";
-
-interface DeletePostProps {
-  id: string;
-}
+import { ReactNode, useActionState, useState } from "react";
 
 interface ActionState {
   error?: string;
   success?: boolean;
+  message?: string;
 }
-
-export function DeleteFeedback({ id }: DeletePostProps) {
-  const boundAction = deleteFeedbackAction.bind(null, { feedbackId: id });
+interface Props {
+  title: string;
+  description: string;
+  action: (prevState: ActionState, formData: FormData) => Promise<ActionState>;
+  children: ReactNode;
+}
+export function DeleteModal({ title, description, action, children }: Props) {
   const [open, setOpen] = useState(false);
   const [state, formAction, isPending] = useActionState<ActionState, FormData>(
-    async (prev, formData) => {
-      const result = await boundAction(prev, formData);
-
-      return result;
-    },
-    {},
+    action,
+    {} as ActionState,
   );
 
   return (
@@ -38,15 +34,12 @@ export function DeleteFeedback({ id }: DeletePostProps) {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent
           showCloseButton={false}
-          className="sm:max-w-2xl  rounded-lg p-8 gap-0"
+          className="sm:max-w-2xl  rounded-sm p-8 gap-0"
         >
           <DialogHeader>
-            <DialogTitle>
-              Are you sure you want to delete this post?
-            </DialogTitle>
+            <DialogTitle>{title}</DialogTitle>
             <DialogDescription className="mt-3">
-              This action can't be undone, and all votes and comments will also
-              be deleted.
+              {description}
             </DialogDescription>
           </DialogHeader>
 
@@ -81,9 +74,9 @@ export function DeleteFeedback({ id }: DeletePostProps) {
 
       <button
         onClick={() => setOpen(true)}
-        className="transition-colors hover:text-red-500 dark:hover:text-red-400 cursor-pointer"
+        className="cursor-pointer transition-colors"
       >
-        Delete
+        {children}
       </button>
     </>
   );

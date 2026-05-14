@@ -1,10 +1,11 @@
+import { deleteFeedbackAction } from "@/app/actions/feedback";
 import { Vote } from "@/app/generated/prisma/client";
 import { FeedbackStatus } from "@/app/generated/prisma/enums";
+import { DeleteModal } from "@/components/DeleteModal";
 import FeedbackStatusBadge from "@/components/FeedbackStatus";
 import { UpvoteButton } from "@/components/UpvoteButton";
 import UserAvatar from "@/components/UserAvatar";
 import { EditFeedback } from "./EditFeedback";
-import { DeleteFeedback } from "./DeleteFeedback";
 interface Props {
   id: string;
   title: string;
@@ -35,6 +36,7 @@ export function FeedbackCard({
   workspaceSlug,
   boardSlug,
 }: Props) {
+  const boundAction = deleteFeedbackAction.bind(null, { feedbackId: id });
   return (
     <div className=" dark:border-zinc-800 dark:bg-zinc-950">
       {/* Top row */}
@@ -64,7 +66,6 @@ export function FeedbackCard({
         </div>
       </div>
 
-      {/* Feedback row */}
       <div className="flex items-start gap-5 mt-6">
         <UserAvatar user={author} />
 
@@ -88,7 +89,16 @@ export function FeedbackCard({
                 <span>·</span>
                 <EditFeedback id={id} title={title} description={description} />
                 <span>·</span>
-                <DeleteFeedback id={id} />
+                <DeleteModal
+                  action={boundAction}
+                  title=" Are you sure you want to delete this post?"
+                  description="  This action can't be undone, and all votes and comments will also
+              be deleted."
+                >
+                  <span className=" hover:text-zinc-700 dark:hover:text-zinc-300 ">
+                    Delete
+                  </span>
+                </DeleteModal>
               </>
             )}
           </div>

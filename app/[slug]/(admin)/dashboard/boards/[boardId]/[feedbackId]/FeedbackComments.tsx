@@ -1,5 +1,4 @@
 "use client";
-import { DeleteCommentModal } from "@/app/[slug]/(public)/[board]/p/[feedback]/DeleteCommentModal";
 import {
   Select,
   SelectContent,
@@ -104,11 +103,11 @@ const FeedbackComments = ({
                 </div>
               </div>
 
-              <DeleteCommentModal
+              {/* <DeleteCommentModal
                 commentId={comment.id}
                 boardSlug={"boardSlug"}
                 workspaceSlug={"workspaceSlug"}
-              />
+              /> */}
             </div>
           </div>
         </div>

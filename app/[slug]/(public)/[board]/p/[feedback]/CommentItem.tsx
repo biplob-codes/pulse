@@ -1,6 +1,8 @@
+import { deleteCommentAction } from "@/app/actions/comment";
+import { DeleteModal } from "@/components/DeleteModal";
 import UserAvatar from "@/components/UserAvatar";
 import { formatCommentDate } from "@/lib/utils"; // your utility fn
-import { DeleteCommentModal } from "./DeleteCommentModal";
+import { X } from "lucide-react";
 import { EditCommentModal } from "./EditCommentModal";
 
 interface Props {
@@ -25,7 +27,11 @@ export function CommentItem({
   workspaceSlug,
 }: Props) {
   const isAuthor = currentUserId === comment.author.id;
-
+  const boundAction = deleteCommentAction.bind(null, {
+    commentId: comment.id,
+    boardSlug,
+    workspaceSlug,
+  });
   return (
     <div className="flex items-start gap-3 py-3">
       <UserAvatar user={comment.author} />
@@ -57,11 +63,13 @@ export function CommentItem({
           </div>
 
           {isAuthor && (
-            <DeleteCommentModal
-              commentId={comment.id}
-              boardSlug={boardSlug}
-              workspaceSlug={workspaceSlug}
-            />
+            <DeleteModal
+              title="Delete Comment"
+              description="Are you sure you want to delete this comment? This action cannot be undone."
+              action={boundAction}
+            >
+              <X className="h-5 w-5 hover:text-gray-700  text-gray-500 dark:text-foreground dark:hover:text-gray-500" />
+            </DeleteModal>
           )}
         </div>
       </div>
