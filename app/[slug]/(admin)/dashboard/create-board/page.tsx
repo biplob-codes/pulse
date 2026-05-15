@@ -1,29 +1,18 @@
 "use client";
 
-import { createBoardAction } from "@/app/actions/board";
+import { createBoardAction, CreateBoardState } from "@/app/actions/board";
 import { Button } from "@/components/ui/button";
-import { generateSlug } from "@/lib/schema";
+import { generateSlugForBoard } from "@/lib/utils";
+
 import { redirect, useParams } from "next/navigation";
 import { useActionState, useEffect, useRef } from "react";
-
-type FieldErrors = {
-  name?: string[];
-  slug?: string[];
-};
-
-type ActionState = {
-  errors?: FieldErrors;
-  message?: string;
-  success?: boolean;
-  workspaceSlug?: string;
-};
-
-const initialState: ActionState = {};
+import { toast } from "sonner";
 
 export default function CreateBoardForm() {
   const workspaceSlug = useParams()["slug"] as string;
   const action = createBoardAction.bind(null, workspaceSlug);
-  const [state, formAction, isPending] = useActionState(action, initialState);
+
+  const [state, formAction, isPending] = useActionState(action, {});
 
   const nameRef = useRef<HTMLInputElement>(null);
   const slugRef = useRef<HTMLInputElement>(null);
@@ -31,20 +20,20 @@ export default function CreateBoardForm() {
   // Auto-generate slug from name as user types
   function handleNameChange(e: React.ChangeEvent<HTMLInputElement>) {
     if (slugRef.current) {
-      slugRef.current.value = generateSlug(e.target.value);
+      slugRef.current.value = generateSlugForBoard(e.target.value);
     }
   }
 
-  // Focus first error field after submission
-  useEffect(() => {
-    if (state.errors?.name) nameRef.current?.focus();
-    else if (state.errors?.slug) slugRef.current?.focus();
-  }, [state.errors]);
   useEffect(() => {
     if (state.success) {
       redirect(`/${workspaceSlug}/dashboard`);
     }
-  }, [state.success]);
+    if (!state.success && state.message) {
+      toast.error(state.message);
+    }
+    if (state.errors?.name) nameRef.current?.focus();
+    else if (state.errors?.slug) slugRef.current?.focus();
+  }, [state]);
   return (
     <div className="w-xl">
       {/* Page header */}
@@ -57,7 +46,6 @@ export default function CreateBoardForm() {
         </p>
       </div>
 
-      {/* Form body */}
       <form action={formAction}>
         <div className="px-5 py-3 space-y-5 max-w-xl">
           {/* Name */}
@@ -76,6 +64,7 @@ export default function CreateBoardForm() {
               placeholder="Feature Requests"
               onChange={handleNameChange}
               aria-describedby={state.errors?.name ? "name-error" : undefined}
+              defaultValue={state.fields?.name}
               aria-invalid={!!state.errors?.name}
               className={`
                 w-full rounded-md border bg-background px-3 py-2 text-sm text-foreground
@@ -117,6 +106,7 @@ export default function CreateBoardForm() {
                 type="text"
                 placeholder="feature-requests"
                 aria-describedby={state.errors?.slug ? "slug-error" : undefined}
+                defaultValue={state.fields?.slug}
                 aria-invalid={!!state.errors?.slug}
                 className="
                   flex-1 bg-transparent py-2 pr-3 text-sm text-foreground
@@ -126,21 +116,15 @@ export default function CreateBoardForm() {
               />
             </div>
             {state.errors?.slug && (
-              <p id="slug-error" className="text-xs text-destructive">
+              <p id="slug-error" className="text-sm text-destructive my-2">
                 {state.errors.slug[0]}
               </p>
             )}
           </div>
-
-          {/* Global error */}
-          {state.message && !state.success && (
-            <p className="text-xs text-destructive">{state.message}</p>
-          )}
         </div>
 
-        {/* Footer — button pinned right */}
         <div className=" px-8 py-4 flex items-center justify-end">
-          <Button type="submit" disabled={isPending}>
+          <Button type="submit" className="cursor-pointer" disabled={isPending}>
             {isPending ? "Creating…" : "Create board"}
           </Button>
         </div>

@@ -4,38 +4,28 @@ import { useActionState, useRef, useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Paperclip, Loader2 } from "lucide-react";
-import { CommentActionState, createCommentAction } from "@/app/actions/comment";
+import { CommentState, createComment } from "@/app/actions/comment";
 import { AuthModal } from "@/components/AuthModal";
+import { toast } from "sonner";
 
 interface Props {
   feedbackId: string;
   isAuthenticated: boolean;
-  boardSlug: string;
-  workspaceSlug: string;
 }
 
-export default function CommentInput({
-  feedbackId,
-  isAuthenticated,
-  boardSlug,
-  workspaceSlug,
-}: Props) {
+export default function CommentInput({ feedbackId, isAuthenticated }: Props) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [value, setValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [openAuthModal, setOpenAuthModal] = useState(false);
   // Bind feedbackId into the server action via a context object
-  const boundAction = createCommentAction.bind(null, {
-    feedbackId,
-    boardSlug,
-    workspaceSlug,
-  });
+  const boundAction = createComment.bind(null, feedbackId);
 
-  const [state, formAction, isPending] = useActionState<
-    CommentActionState,
-    FormData
-  >(boundAction, {});
+  const [state, formAction, isPending] = useActionState<CommentState, FormData>(
+    boundAction,
+    {},
+  );
 
   const handleFocus = () => setIsExpanded(true);
 
@@ -58,7 +48,8 @@ export default function CommentInput({
       setValue("");
       setIsExpanded(false);
     }
-  }, [state?.success]);
+    if (!state.success && state.message) toast.error(state.message);
+  }, [state]);
 
   return (
     <div ref={containerRef} className="w-full my-8 ml-10">
@@ -66,7 +57,7 @@ export default function CommentInput({
         className={[
           "rounded-xs border transition-all duration-200",
           " border-border",
-          state?.error ? "border-destructive" : "",
+          state?.errors ? "border-destructive" : "",
         ].join(" ")}
       >
         <form action={formAction}>
@@ -139,10 +130,6 @@ export default function CommentInput({
         </form>
       </div>
 
-      {/* ── Server error message ── */}
-      {state?.error && (
-        <p className="mt-1.5 text-xs text-destructive pl-1">{state.error}</p>
-      )}
       <AuthModal open={openAuthModal} onClose={() => setOpenAuthModal(false)} />
     </div>
   );

@@ -85,8 +85,6 @@ const CommentSection = ({
           key={comment.id}
           comment={comment}
           currentUserId={currentUserId}
-          boardSlug={boardSlug}
-          workspaceSlug={workspaceSlug}
         />
       ))}
     </div>

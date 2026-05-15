@@ -1,6 +1,6 @@
 "use client";
 
-import { updateFeedbackStatusAction } from "@/app/actions/feedback";
+import { updateFeedbackStatus } from "@/app/actions/feedback";
 import { FeedbackStatus } from "@/app/generated/prisma/enums";
 import {
   Select,
@@ -25,27 +25,15 @@ const STATUS_LABELS: Record<FeedbackStatus, string> = {
 type Props = {
   feedbackId: string;
   currentStatus: FeedbackStatus;
-  workspaceSlug: string;
-  boardId: string;
 };
 
-export function StatusDropdown({
-  feedbackId,
-  currentStatus,
-  workspaceSlug,
-  boardId,
-}: Props) {
+export function StatusDropdown({ feedbackId, currentStatus }: Props) {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
   function handleChange(value: FeedbackStatus) {
     startTransition(async () => {
-      await updateFeedbackStatusAction(
-        feedbackId,
-        value,
-        workspaceSlug,
-        boardId,
-      );
+      await updateFeedbackStatus(feedbackId, value);
       router.refresh();
     });
   }

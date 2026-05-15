@@ -67,8 +67,6 @@ const page = async ({ params }: PageProps) => {
           <StatusDropdown
             feedbackId={feedback.id}
             currentStatus={feedback.status}
-            workspaceSlug={feedback.board.workspace.slug}
-            boardId={feedback.board.id}
           />
         </section>
 

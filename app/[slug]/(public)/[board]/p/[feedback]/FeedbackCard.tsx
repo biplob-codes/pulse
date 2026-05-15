@@ -1,4 +1,4 @@
-import { deleteFeedbackAction } from "@/app/actions/feedback";
+import { deleteFeedback } from "@/app/actions/feedback";
 import { Vote } from "@/app/generated/prisma/client";
 import { FeedbackStatus } from "@/app/generated/prisma/enums";
 import { DeleteModal } from "@/components/DeleteModal";
@@ -36,7 +36,7 @@ export function FeedbackCard({
   workspaceSlug,
   boardSlug,
 }: Props) {
-  const boundAction = deleteFeedbackAction.bind(null, { feedbackId: id });
+  const boundAction = deleteFeedback.bind(null, id);
   return (
     <div className=" dark:border-zinc-800 dark:bg-zinc-950">
       {/* Top row */}
@@ -94,6 +94,7 @@ export function FeedbackCard({
                   title=" Are you sure you want to delete this post?"
                   description="  This action can't be undone, and all votes and comments will also
               be deleted."
+                  redirectTo={`/${workspaceSlug}/${boardSlug}`}
                 >
                   <span className=" hover:text-zinc-700 dark:hover:text-zinc-300 ">
                     Delete

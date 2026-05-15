@@ -3,18 +3,17 @@
 import { useActionState, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { createFeedbackAction, FeedbackState } from "@/app/actions/feedback";
+import { createFeedback, FeedbackState } from "@/app/actions/feedback";
 import { AuthModal } from "@/components/AuthModal";
 import { toast } from "sonner";
 
-const initialState: FeedbackState = {};
 interface Props {
   context: { workspaceSlug: string; boardSlug: string };
   isAuthenticated?: boolean;
 }
 export function FeedbackForm({ context, isAuthenticated }: Props) {
-  const action = createFeedbackAction.bind(null, context);
-  const [state, formAction, isPending] = useActionState(action, initialState);
+  const action = createFeedback.bind(null, context);
+  const [state, formAction, isPending] = useActionState(action, {});
   const formRef = useRef<HTMLFormElement>(null);
   const [openAuthModal, setOpenAuthModal] = useState(false);
   useEffect(() => {

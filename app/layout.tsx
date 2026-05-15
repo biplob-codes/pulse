@@ -38,7 +38,20 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           {children}
-          <Toaster richColors position="top-right" />
+          <Toaster
+            position="top-right"
+            theme="system"
+            gap={8}
+            toastOptions={{
+              classNames: {
+                success: "!bg-green-400 !text-white !border-0",
+                error: "!bg-red-400 !text-white !border-0",
+                warning: "!bg-yellow-400 !text-white !border-0",
+                info: "!bg-indigo-400 !text-white !border-0",
+                loading: "!bg-zinc-400 !text-white !border-0",
+              },
+            }}
+          />
         </ThemeProvider>
       </body>
     </html>

@@ -60,8 +60,6 @@ const FeedbackDetailsPage = async ({ params }: Props) => {
         <CommentInput
           isAuthenticated={!!session?.user}
           feedbackId={feedback.id}
-          boardSlug={boardSlug}
-          workspaceSlug={workspaceSlug}
         />
         {pinnedComment && (
           <PinComment

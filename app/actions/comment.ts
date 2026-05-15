@@ -1,92 +1,69 @@
 "use server";
 
-import { getSession } from "@/lib/auth-session";
+import { requireUser } from "@/lib/auth-utils";
 import prisma from "@/lib/prisma";
-import { createCommentSchema } from "@/lib/schema";
+import { commentSchema } from "@/lib/schema";
+import { ActionState } from "@/lib/types";
+import { getErrorMessage } from "@/lib/utils";
+import { validateForm } from "@/lib/validation";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 
-interface CommentContext {
-  feedbackId: string;
-  boardSlug: string;
-  workspaceSlug: string;
-}
+export type CommentState = ActionState<{ content: string }>;
 
-export interface CommentActionState {
-  error?: string;
-  success?: boolean;
-  message?: string;
-  fields?: {
-    content?: string;
-  };
-  errors?: {
-    content?: string[];
-  };
-}
-
-export async function createCommentAction(
-  context: CommentContext,
-  _prevState: CommentActionState,
+export async function createComment(
+  feedbackId: string,
+  _prevState: CommentState,
   formData: FormData,
-): Promise<CommentActionState> {
-  const session = await getSession();
-  if (!session) redirect("/");
-  const raw = { content: formData.get("content") as string };
-
-  const fields = { content: raw.content };
-
-  const parsed = createCommentSchema.safeParse(raw);
-
-  if (!parsed.success) {
-    return {
-      success: false,
-      fields,
-      errors: parsed.error.flatten().fieldErrors,
-    };
-  }
+): Promise<CommentState> {
   try {
-    await prisma.comment.create({
+    const user = await requireUser();
+    const raw = { content: formData.get("content") as string };
+    const parsed = validateForm(commentSchema, raw);
+    if (!parsed.success) return parsed.state;
+    const comment = await prisma.comment.create({
       data: {
-        feedbackId: context.feedbackId,
+        feedbackId,
         content: raw.content,
-        authorId: session.user.id,
+        authorId: user.id,
       },
-    });
-    revalidatePath(`/${context.workspaceSlug}/${context.boardSlug}`);
-    return { success: true };
-  } catch (error) {
-    return { success: false };
-  }
-}
-interface DeleteCommentState {
-  error?: string;
-  message?: string;
-  success?: boolean;
-}
-export const deleteCommentAction = async (
-  context: {
-    commentId: string;
-    workspaceSlug?: string;
-    boardSlug?: string;
-  },
-  prevState: DeleteCommentState,
-  formData: FormData,
-): Promise<DeleteCommentState> => {
-  const session = await getSession();
-  if (!session) redirect("/");
-  try {
-    const comment = await prisma.comment.findUnique({
-      where: { id: context.commentId },
       select: {
+        id: true,
         authorId: true,
         feedback: {
           select: {
             board: {
-              select: {
-                workspace: {
-                  select: { members: { select: { userId: true } } },
-                },
-              },
+              select: { slug: true, workspace: { select: { slug: true } } },
+            },
+          },
+        },
+      },
+    });
+
+    revalidatePath(
+      `/${comment.feedback.board.workspace.slug}/${comment.feedback.board.slug}`,
+    );
+    return { success: true };
+  } catch (error) {
+    return { success: false, message: getErrorMessage(error) };
+  }
+}
+
+export const deleteCommentByUser = async (
+  commentId: string,
+  prevState: ActionState,
+  formData: FormData,
+): Promise<ActionState> => {
+  try {
+    const user = await requireUser();
+    const comment = await prisma.comment.findUnique({
+      where: { id: commentId },
+      select: {
+        id: true,
+        authorId: true,
+        feedback: {
+          select: {
+            board: {
+              select: { slug: true, workspace: { select: { slug: true } } },
             },
           },
         },
@@ -95,87 +72,41 @@ export const deleteCommentAction = async (
     if (!comment) {
       return { success: false, message: "Comment not found" };
     }
-    const isWorkSpaceMember = comment.feedback.board.workspace.members.find(
-      (u) => u.userId === session.user.id,
+
+    if (comment.authorId !== user.id) throw new Error("Unauthorized.");
+
+    await prisma.comment.delete({ where: { id: commentId } });
+
+    revalidatePath(
+      `/${comment.feedback.board.workspace.slug}/${comment.feedback.board.slug}`,
     );
-
-    if (comment.authorId !== session.user.id && !isWorkSpaceMember) {
-      return { success: false, message: "Unauthorize" };
-    }
-
-    await prisma.comment.delete({ where: { id: context.commentId } });
-
-    if (context.workspaceSlug && context.boardSlug) {
-      revalidatePath(`/${context.workspaceSlug}/${context.boardSlug}`);
-    }
-    return { success: true };
-  } catch (e) {
-    return { success: false };
-  }
-};
-
-export async function updateCommentAction(
-  context: {
-    commentId: string;
-    workspaceSlug: string;
-    boardSlug: string;
-  },
-  _prevState: CommentActionState,
-  formData: FormData,
-): Promise<CommentActionState> {
-  const session = await getSession();
-  if (!session) redirect("/");
-
-  const raw = { content: formData.get("content") as string };
-
-  const fields = { content: raw.content };
-
-  const parsed = createCommentSchema.safeParse(raw);
-
-  if (!parsed.success) {
-    return {
-      success: false,
-      fields,
-      errors: parsed.error.flatten().fieldErrors,
-    };
-  }
-  try {
-    const comment = await prisma.comment.findUnique({
-      where: { id: context.commentId },
-    });
-    if (comment?.authorId !== session.user.id)
-      return { success: false, message: "Unauthorize" };
-
-    await prisma.comment.update({
-      where: { id: context.commentId },
-      data: {
-        content: raw.content,
-      },
-    });
-    revalidatePath(`/${context.workspaceSlug}/${context.boardSlug}`);
     return { success: true };
   } catch (error) {
-    return { success: false };
+    return { success: false, message: getErrorMessage(error) };
   }
-}
-
-export async function togglePinComment(commentId: string) {
+};
+//TODO: Refactor UI component to use server action without formData
+export const deleteCommentByAdmin = async (
+  commentId: string,
+  prevState: ActionState,
+  formData: FormData,
+): Promise<ActionState> => {
   try {
-    const session = await getSession();
-    if (!session) return { success: false, message: "Unauthorized" };
-
-    // check if the user is an admin/owner of the workspace
+    const user = await requireUser();
     const comment = await prisma.comment.findUnique({
       where: { id: commentId },
       include: {
         feedback: {
           select: {
+            id: true,
             board: {
               select: {
+                id: true,
                 workspace: {
                   select: {
+                    slug: true,
                     members: {
-                      where: { userId: session.user.id },
+                      where: { userId: user.id },
                     },
                   },
                 },
@@ -186,13 +117,80 @@ export async function togglePinComment(commentId: string) {
       },
     });
 
-    if (!comment) return { success: false, message: "Comment not found" };
+    if (!comment) throw new Error("Comment not found");
 
     const member = comment.feedback.board.workspace.members[0];
-    if (!member)
-      return { success: false, message: "Not authorize to pin comments" };
+    if (!member) throw new Error("Unathorize");
 
-    // if trying to pin, unpin the current pinned one first
+    await prisma.comment.delete({ where: { id: commentId } });
+
+    revalidatePath(
+      `/${comment.feedback.board.workspace.slug}/dashboard/boards/${comment.feedback.board.id}/${comment.feedback.id}`,
+    );
+    return { success: true };
+  } catch (error) {
+    return { success: false, message: getErrorMessage(error) };
+  }
+};
+
+export async function updateComment(
+  commentId: string,
+  _prevState: CommentState,
+  formData: FormData,
+): Promise<CommentState> {
+  try {
+    const user = await requireUser();
+    const raw = { content: formData.get("content") as string };
+    const parsed = validateForm(commentSchema, raw);
+    if (!parsed.success) return parsed.state;
+    const comment = await prisma.comment.findUnique({
+      where: { id: commentId },
+      select: { authorId: true, id: true },
+    });
+
+    if (comment?.authorId !== user.id) throw new Error("Unathorize");
+
+    await prisma.comment.update({
+      where: { id: commentId },
+      data: {
+        content: raw.content,
+      },
+    });
+    return { success: true };
+  } catch (error) {
+    return { success: false, message: getErrorMessage(error) };
+  }
+}
+
+export async function togglePinComment(commentId: string) {
+  try {
+    const user = await requireUser();
+    const comment = await prisma.comment.findUnique({
+      where: { id: commentId },
+      include: {
+        feedback: {
+          select: {
+            board: {
+              select: {
+                workspace: {
+                  select: {
+                    members: {
+                      where: { userId: user.id },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!comment) throw new Error("Comment not found");
+
+    const member = comment.feedback.board.workspace.members[0];
+    if (!member) throw new Error("Unathorize");
+
     if (!comment.isPinned) {
       await prisma.$transaction([
         prisma.comment.updateMany({
@@ -214,9 +212,8 @@ export async function togglePinComment(commentId: string) {
 
     return {
       success: true,
-      message: comment.isPinned ? "Comment unpinned" : "Comment pinned",
     };
-  } catch {
-    return { success: false, message: "Something went wrong" };
+  } catch (error) {
+    return { success: false, message: getErrorMessage(error) };
   }
 }

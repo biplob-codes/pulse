@@ -110,8 +110,6 @@ export const columns: ColumnDef<FeedbackRow>[] = [
       <StatusChanger
         feedbackId={row.original.id}
         currentStatus={row.original.status}
-        workspaceSlug={row.original.workspaceSlug}
-        boardId={row.original.boardId}
       />
     ),
     filterFn: (row, _, filterValue) => {

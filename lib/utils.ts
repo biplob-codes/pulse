@@ -24,3 +24,17 @@ export function formatCommentDate(date: Date) {
 
   return formatDistanceToNow(dateObj, { addSuffix: true });
 }
+
+export function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  return "Something went wrong";
+}
+export function generateSlugForBoard(name: string): string {
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Paperclip, Loader2 } from "lucide-react";
 import {
@@ -13,17 +13,13 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { updateFeedbackAction } from "@/app/actions/feedback";
+import { updateFeedback } from "@/app/actions/feedback";
+import { toast } from "sonner";
 
 interface EditFeedbackProps {
   id: string;
   title: string;
   description: string | null;
-}
-
-interface ActionState {
-  error?: string;
-  success?: boolean;
 }
 
 export function EditFeedback({
@@ -36,20 +32,17 @@ export function EditFeedback({
   const [title, setTitle] = useState(initialTitle);
   const [description, setDescription] = useState(initialDescription ?? "");
 
-  const boundAction = updateFeedbackAction.bind(null, { feedbackId: id });
+  const boundAction = updateFeedback.bind(null, id);
 
-  const [state, formAction, isPending] = useActionState<ActionState, FormData>(
-    async (prev, formData) => {
-      const result = await boundAction(prev, formData);
-      if (result.success) {
-        router.refresh();
-        setOpen(false);
-      }
-      return result;
-    },
-    {},
-  );
-
+  const [state, formAction, isPending] = useActionState(boundAction, {});
+  useEffect(() => {
+    if (state.success) {
+      (setOpen(false), router.refresh());
+    }
+    if (!state.success && state.message) {
+      toast.error(state.message);
+    }
+  }, [state]);
   return (
     <>
       <button
@@ -100,10 +93,6 @@ export function EditFeedback({
                   disabled={isPending}
                 />
               </div>
-
-              {state?.error && (
-                <p className="text-xs text-destructive">{state.error}</p>
-              )}
 
               <div className="flex items-center justify-between pt-1">
                 <Button

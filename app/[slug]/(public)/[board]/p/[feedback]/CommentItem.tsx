@@ -1,4 +1,4 @@
-import { deleteCommentAction } from "@/app/actions/comment";
+import { deleteCommentByUser } from "@/app/actions/comment";
 import { DeleteModal } from "@/components/DeleteModal";
 import UserAvatar from "@/components/UserAvatar";
 import { formatCommentDate } from "@/lib/utils"; // your utility fn
@@ -17,21 +17,10 @@ interface Props {
     createdAt: Date;
   };
   currentUserId?: string;
-  workspaceSlug: string;
-  boardSlug: string;
 }
-export function CommentItem({
-  comment,
-  currentUserId,
-  boardSlug,
-  workspaceSlug,
-}: Props) {
+export function CommentItem({ comment, currentUserId }: Props) {
   const isAuthor = currentUserId === comment.author.id;
-  const boundAction = deleteCommentAction.bind(null, {
-    commentId: comment.id,
-    boardSlug,
-    workspaceSlug,
-  });
+  const boundAction = deleteCommentByUser.bind(null, comment.id);
   return (
     <div className="flex items-start gap-3 py-3">
       <UserAvatar user={comment.author} />
@@ -53,9 +42,7 @@ export function CommentItem({
                   <span>·</span>
                   <EditCommentModal
                     commentId={comment.id}
-                    boardSlug={boardSlug}
-                    workspaceSlug={workspaceSlug}
-                    content={comment.content}
+                    initialContent={comment.content}
                   />
                 </>
               )}

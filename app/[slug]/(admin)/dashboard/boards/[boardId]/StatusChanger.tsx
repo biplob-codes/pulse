@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { FeedbackStatus } from "@/app/generated/prisma/enums";
-import { updateFeedbackStatusAction } from "@/app/actions/feedback";
+import { updateFeedbackStatus } from "@/app/actions/feedback";
 import { StatusBadge } from "./StatusBadge";
 
 const STATUS_OPTIONS: { label: string; value: FeedbackStatus }[] = [
@@ -24,15 +24,11 @@ const STATUS_OPTIONS: { label: string; value: FeedbackStatus }[] = [
 interface StatusChangerProps {
   feedbackId: string;
   currentStatus: FeedbackStatus;
-  workspaceSlug: string;
-  boardId: string;
 }
 
 export function StatusChanger({
   feedbackId,
   currentStatus,
-  workspaceSlug,
-  boardId,
 }: StatusChangerProps) {
   const [open, setOpen] = useState(false);
   const [optimisticStatus, setOptimisticStatus] = useState(currentStatus);
@@ -48,12 +44,7 @@ export function StatusChanger({
     setOpen(false);
 
     startTransition(async () => {
-      await updateFeedbackStatusAction(
-        feedbackId,
-        status,
-        workspaceSlug,
-        boardId,
-      );
+      await updateFeedbackStatus(feedbackId, status);
     });
   }
 

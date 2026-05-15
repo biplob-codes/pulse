@@ -1,101 +1,55 @@
 "use server";
 
-import { getSession } from "@/lib/auth-session";
-import { redirect } from "next/navigation";
+import { requireUser, requireWorkspaceMember } from "@/lib/auth-utils";
 import prisma from "@/lib/prisma";
 import { createBoardSchema } from "@/lib/schema";
+import { ActionState } from "@/lib/types";
+import { getErrorMessage } from "@/lib/utils";
+import { validateForm } from "@/lib/validation";
 import { revalidatePath } from "next/cache";
 
-export type CreateBoardState = {
-  success?: boolean;
-  message?: string;
-  fields?: {
-    name?: string;
-    slug?: string;
-  };
-  errors?: {
-    name?: string[];
-    slug?: string[];
-  };
-};
+export type CreateBoardState = ActionState<{ name: string; slug: string }>;
 
 export async function createBoardAction(
   workspaceSlug: string,
   _prev: CreateBoardState,
   formData: FormData,
 ): Promise<CreateBoardState> {
-  // 1. Auth check
-
-  const raw = {
-    name: formData.get("name") as string,
-    slug: formData.get("slug") as string,
-  };
-
-  // 2. Validate
-  const parsed = createBoardSchema.safeParse(raw);
-
-  if (!parsed.success) {
-    return {
-      success: false,
-      fields: raw,
-      errors: parsed.error.flatten().fieldErrors,
+  try {
+    const user = await requireUser();
+    const member = await requireWorkspaceMember(user.id, workspaceSlug);
+    if (!member) throw new Error("Not Authorize to create board.");
+    const raw = {
+      name: formData.get("name") as string,
+      slug: formData.get("slug") as string,
     };
+
+    const parsed = validateForm(createBoardSchema, raw);
+    if (!parsed.success) return parsed.state;
+
+    const { name, slug } = parsed.data;
+
+    const existing = await prisma.board.findUnique({
+      where: { slug_workspaceId: { slug, workspaceId: member.workspaceId } },
+    });
+
+    if (existing) {
+      return {
+        success: false,
+        fields: raw,
+        errors: {
+          slug: ["A board with this slug already exists in your workspace."],
+        },
+      };
+    }
+
+    await prisma.board.create({
+      data: { name, slug, workspaceId: member.workspaceId },
+    });
+
+    revalidatePath(`/${workspaceSlug}/dashboard`);
+    return { success: true, message: "Board created successfully." };
+  } catch (error) {
+    return { success: false, message: getErrorMessage(error) };
   }
-
-  const { name, slug } = parsed.data;
-
-  const session = await getSession();
-
-  if (!session?.user) {
-    redirect("/");
-  }
-  const workspace = await prisma.workspace.findUnique({
-    where: { slug: workspaceSlug },
-    select: {
-      id: true,
-      members: {
-        where: { userId: session.user.id },
-      },
-    },
-  });
-  if (!workspace || workspace.members.length === 0) {
-    return {
-      success: false,
-      fields: raw,
-      message: "You do not have access to this workspace.",
-    };
-  }
-
-  const existing = await prisma.board.findUnique({
-    where: {
-      slug_workspaceId: {
-        slug,
-        workspaceId: workspace.id,
-      },
-    },
-  });
-
-  if (existing) {
-    return {
-      success: false,
-      fields: raw,
-      errors: {
-        slug: ["This slug is already taken. Try another one."],
-      },
-    };
-  }
-
-  // 3. Create board
-  await prisma.board.create({
-    data: {
-      name,
-      slug,
-      workspaceId: workspace.id,
-    },
-  });
-  revalidatePath(`/${workspaceSlug}/dashboard`);
-  return {
-    success: true,
-    message: "Board created successfully.",
-  };
 }

@@ -1,9 +1,9 @@
-import { deleteCommentAction } from "@/app/actions/comment";
 import { DeleteModal } from "@/components/DeleteModal";
 import UserAvatar from "@/components/UserAvatar";
 import { formatCommentDate } from "@/lib/utils";
 import { Dot, X } from "lucide-react";
 import CommentPinButton from "../../../../../../../components/CommentPinButton";
+import { deleteCommentByAdmin } from "@/app/actions/comment";
 interface Comment {
   id: string;
   author: {
@@ -38,12 +38,10 @@ const Comment = ({ comment }: { comment: Comment }) => {
           </div>
 
           <DeleteModal
-            action={deleteCommentAction.bind(null, {
-              commentId: comment.id,
-            })}
+            action={deleteCommentByAdmin.bind(null, comment.id)}
             title="Delete Comment"
             description="This comment will be permanently deleted and cannot be recovered."
-            refreshOnSuccess={true}
+            // refreshOnSuccess={true}
           >
             <X className="h-5 w-5 hover:text-gray-700  text-gray-500 dark:text-foreground dark:hover:text-gray-500" />
           </DeleteModal>

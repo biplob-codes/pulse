@@ -11,6 +11,7 @@ import {
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { ReactNode, useActionState, useEffect, useState } from "react";
+import { toast } from "sonner";
 
 interface ActionState {
   error?: string;
@@ -23,6 +24,7 @@ interface Props {
   action: (prevState: ActionState, formData: FormData) => Promise<ActionState>;
   children: ReactNode;
   refreshOnSuccess?: boolean;
+  redirectTo?: string;
 }
 export function DeleteModal({
   title,
@@ -30,6 +32,7 @@ export function DeleteModal({
   action,
   children,
   refreshOnSuccess = false,
+  redirectTo,
 }: Props) {
   const [open, setOpen] = useState(false);
   const router = useRouter();
@@ -42,7 +45,12 @@ export function DeleteModal({
       setOpen(false);
       router.refresh();
     }
-  }, [state.success]);
+    if (state.success && redirectTo) {
+      setOpen(false);
+      router.push(redirectTo);
+    }
+    if (!state.success && state.message) toast.error(state.message);
+  }, [state]);
 
   return (
     <>

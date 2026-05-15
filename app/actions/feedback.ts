@@ -1,207 +1,169 @@
 "use server";
 
-import { getSession } from "@/lib/auth-session";
+import { requireUser, requireWorkspaceMember } from "@/lib/auth-utils";
 import prisma from "@/lib/prisma";
 import { createFeedbackSchema } from "@/lib/schema";
-import { generateSlug } from "@/lib/utils";
-import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
-import { FeedbackStatus } from "../generated/prisma/enums";
+import { ActionState } from "@/lib/types";
+import { generateSlug, getErrorMessage } from "@/lib/utils";
+import { validateForm } from "@/lib/validation";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/client";
+import { revalidatePath } from "next/cache";
+import { FeedbackStatus } from "../generated/prisma/enums";
 
-export type FeedbackState = {
-  success?: boolean;
-  message?: string;
-  fields?: {
-    title?: string;
-    description?: string;
-  };
-  errors?: {
-    title?: string[];
-    description?: string[];
-  };
-};
+export type FeedbackState = ActionState<{
+  title?: string;
+  description?: string;
+}>;
 
-export async function createFeedbackAction(
-  context: { workspaceSlug: string; boardSlug: string },
+export async function createFeedback(
+  ctx: { workspaceSlug: string; boardSlug: string },
   _prev: FeedbackState,
   formData: FormData,
 ): Promise<FeedbackState> {
-  const session = await getSession();
-
-  if (!session?.user) {
-    redirect("/signin");
-  }
-  const { workspaceSlug, boardSlug } = context;
-  const raw = {
-    title: formData.get("title") as string,
-    description: formData.get("description") as string,
-  };
-
-  const parsed = createFeedbackSchema.safeParse(raw);
-
-  if (!parsed.success) {
-    return {
-      success: false,
-      fields: raw,
-      errors: parsed.error.flatten().fieldErrors,
+  try {
+    const user = await requireUser();
+    const { workspaceSlug, boardSlug } = ctx;
+    const raw = {
+      title: formData.get("title") as string,
+      description: formData.get("description") as string,
     };
-  }
 
-  const { title, description } = parsed.data;
+    const parsed = validateForm(createFeedbackSchema, raw);
+    if (!parsed.success) return parsed.state;
 
-  const board = await prisma.board.findFirst({
-    where: { slug: boardSlug, workspace: { slug: workspaceSlug } },
-  });
-  if (!board) {
-    return {
-      success: false,
-      message: "Board or workspace not found.",
-    };
-  }
-  for (let i = 1; i <= 3; i++) {
-    try {
-      await prisma.feedback.create({
-        data: {
-          title,
-          description,
-          boardId: board.id,
-          authorId: session.user.id,
-          slug: generateSlug(title),
-        },
-      });
+    const { title, description } = parsed.data;
 
-      break;
-    } catch (error) {
-      if (
-        error instanceof PrismaClientKnownRequestError &&
-        error.code === "P2002"
-      ) {
-        if (i === 3) {
-          return {
-            success: false,
-            message: "An error occurred while creating the feedback.",
-          };
+    const board = await prisma.board.findFirst({
+      where: { slug: boardSlug, workspace: { slug: workspaceSlug } },
+    });
+    if (!board) throw new Error("Board or workspace not found");
+    for (let i = 1; i <= 3; i++) {
+      try {
+        await prisma.feedback.create({
+          data: {
+            title,
+            description,
+            boardId: board.id,
+            authorId: user.id,
+            slug: generateSlug(title),
+          },
+        });
+
+        break;
+      } catch (error) {
+        if (
+          error instanceof PrismaClientKnownRequestError &&
+          error.code === "P2002"
+        ) {
+          if (i === 3) {
+            return {
+              success: false,
+              message: "An error occurred while creating the feedback.",
+            };
+          }
+          continue; // Slug collision, try again
         }
-        continue; // Slug collision, try again
       }
     }
+    revalidatePath(`/${workspaceSlug}/${boardSlug}`);
+    return {
+      success: true,
+      message: "Feedback created successfully.",
+    };
+  } catch (error) {
+    return { success: false, message: getErrorMessage(error) };
   }
-  revalidatePath(`/${workspaceSlug}/${boardSlug}`);
-  return {
-    success: true,
-    message: "Feedback created successfully.",
-  };
 }
 
-interface UpdateContext {
-  feedbackId: string;
-}
-
-export async function updateFeedbackAction(
-  context: UpdateContext,
+export async function updateFeedback(
+  feedbackId: string,
   _prevState: FeedbackState,
   formData: FormData,
 ): Promise<FeedbackState> {
-  const session = await getSession();
-
-  if (!session?.user) {
-    redirect("/signin");
-  }
-  const raw = {
-    title: formData.get("title") as string,
-    description: formData.get("description") as string,
-  };
-
-  // 2. Validate
-  const parsed = createFeedbackSchema.safeParse(raw);
-
-  if (!parsed.success) {
-    return {
-      success: false,
-      fields: raw,
-      errors: parsed.error.flatten().fieldErrors,
+  try {
+    const user = await requireUser();
+    const raw = {
+      title: formData.get("title") as string,
+      description: formData.get("description") as string,
     };
-  }
+    const parsed = validateForm(createFeedbackSchema, raw);
+    if (!parsed.success) return parsed.state;
 
-  const { title, description } = parsed.data;
-  const feedback = await prisma.feedback.findUnique({
-    where: { id: context.feedbackId, authorId: session.user.id },
-  });
-  if (!feedback) {
-    return {
-      success: false,
-      message: "Feedback not found or you don't have permission to edit it.",
-    };
-  }
-  await prisma.feedback.update({
-    where: { id: context.feedbackId },
-    data: {
-      title,
-      description,
-    },
-  });
+    const { title, description } = parsed.data;
+    const feedback = await prisma.feedback.findUnique({
+      where: { id: feedbackId, authorId: user.id },
+    });
+    if (!feedback) throw new Error("Feedback not found");
 
-  return { success: true };
-}
-interface DeleteContext {
-  feedbackId: string;
+    await prisma.feedback.update({
+      where: { id: feedbackId },
+      data: {
+        title,
+        description,
+      },
+    });
+
+    return { success: true };
+  } catch (error) {
+    return { success: false, message: getErrorMessage(error) };
+  }
 }
 
-export async function deleteFeedbackAction(
-  context: DeleteContext,
-  _prevState: FeedbackState,
-  formData: FormData,
+export async function deleteFeedback(
+  feedbackId: string,
 ): Promise<FeedbackState> {
-  const session = await getSession();
+  try {
+    const user = await requireUser();
 
-  if (!session?.user) {
-    redirect("/signin");
-  }
+    const feedback = await prisma.feedback.findUnique({
+      where: { id: feedbackId, authorId: user.id },
+      select: {
+        board: {
+          select: { slug: true, workspace: { select: { slug: true } } },
+        },
+      },
+    });
+    if (!feedback) throw new Error("Feedback not found");
 
-  const feedback = await prisma.feedback.findUnique({
-    where: { id: context.feedbackId, authorId: session.user.id },
-    select: {
-      board: { select: { slug: true, workspace: { select: { slug: true } } } },
-    },
-  });
-  if (!feedback) {
-    return {
-      success: false,
-      message: "Feedback not found or you don't have permission to edit it.",
-    };
+    await prisma.feedback.delete({
+      where: { id: feedbackId },
+    });
+    revalidatePath(`/${feedback.board.workspace.slug}/${feedback.board.slug}`);
+    return { success: true };
+  } catch (error) {
+    return { success: false, message: getErrorMessage(error) };
   }
-  await prisma.feedback.delete({
-    where: { id: context.feedbackId },
-  });
-  redirect(`/${feedback.board.workspace.slug}/${feedback.board.slug}`);
 }
-
-export async function updateFeedbackStatusAction(
+//TODO: Learn How the UI part uses this action and make suer that they show proper error
+export async function updateFeedbackStatus(
   feedbackId: string,
   status: FeedbackStatus,
-  workspaceSlug: string,
-  boardId: string,
 ) {
-  const session = await getSession();
+  try {
+    const user = await requireUser();
 
-  if (!session?.user) {
-    redirect("/signin");
+    const feedback = await prisma.feedback.findUnique({
+      where: { id: feedbackId },
+      select: {
+        board: { select: { id: true, workspace: { select: { slug: true } } } },
+      },
+    });
+    if (!feedback) throw new Error("Feedback not found");
+    const workspaceMember = await requireWorkspaceMember(
+      user.id,
+      feedback.board.workspace.slug,
+    );
+    if (!workspaceMember) throw new Error("Unathorize");
+
+    await prisma.feedback.update({
+      where: { id: feedbackId },
+      data: { status },
+    });
+
+    revalidatePath(
+      `/${feedback.board.workspace.slug}/dashboard/boards/${feedback.board.id}`,
+    );
+  } catch (error) {
+    return { success: false, message: getErrorMessage(error) };
   }
-  const workspaceMember = await prisma.workspaceMember.findFirst({
-    where: {
-      userId: session.user.id,
-      workspace: { slug: workspaceSlug },
-    },
-  });
-  if (!workspaceMember) {
-    redirect("/signin");
-  }
-
-  await prisma.feedback.update({
-    where: { id: feedbackId },
-    data: { status },
-  });
-
-  revalidatePath(`/${workspaceSlug}/dashboard/boards/${boardId}`);
 }

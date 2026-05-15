@@ -1,6 +1,6 @@
 "use client";
 
-import { CommentActionState, updateCommentAction } from "@/app/actions/comment";
+import { CommentState, updateComment } from "@/app/actions/comment";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -10,36 +10,33 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useActionState, useEffect, useState } from "react";
+import { toast } from "sonner";
 
 interface Props {
   commentId: string;
-  content: string;
-  workspaceSlug: string;
-  boardSlug: string;
+  initialContent: string;
 }
-export function EditCommentModal({
-  boardSlug,
-  commentId,
-  content: initialContent,
-  workspaceSlug,
-}: Props) {
+export function EditCommentModal({ commentId, initialContent }: Props) {
   const [open, setOpen] = useState(false);
   const [content, setContent] = useState(initialContent);
+  const router = useRouter();
+  const boundAction = updateComment.bind(null, commentId);
 
-  const boundAction = updateCommentAction.bind(null, {
-    boardSlug,
-    commentId,
-    workspaceSlug,
-  });
-
-  const [state, formAction, isPending] = useActionState<
-    CommentActionState,
-    FormData
-  >(boundAction, { success: false } as CommentActionState);
+  const [state, formAction, isPending] = useActionState<CommentState, FormData>(
+    boundAction,
+    { success: false } as CommentState,
+  );
   useEffect(() => {
-    if (state.success) setOpen(false);
-  }, [state.success]);
+    if (state.success) {
+      setOpen(false);
+      router.refresh();
+    }
+    if (!state.success && state.message) {
+      toast.error(state.message);
+    }
+  }, [state]);
   return (
     <>
       <button

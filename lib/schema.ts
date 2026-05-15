@@ -66,15 +66,6 @@ export const createBoardSchema = z.object({
 export type CreateBoardInput = z.infer<typeof createBoardSchema>;
 
 // Helper to generate slug from name
-export function generateSlug(name: string): string {
-  return name
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^-|-$/g, "");
-}
 
 export const createFeedbackSchema = z.object({
   title: z
@@ -88,6 +79,6 @@ export const createFeedbackSchema = z.object({
 });
 
 export type CreateFeedbackInput = z.infer<typeof createFeedbackSchema>;
-export const createCommentSchema=z.object({
-  content:z.string().min(3,"Comment must be at least 3 character")
-})
+export const commentSchema = z.object({
+  content: z.string().min(3, "Comment must be at least 3 character"),
+});
