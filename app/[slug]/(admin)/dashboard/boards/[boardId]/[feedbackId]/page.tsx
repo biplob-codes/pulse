@@ -1,11 +1,12 @@
+import { PinComment } from "@/components/PinComment";
 import UserBadge from "@/components/UserBadge";
 import prisma from "@/lib/prisma";
 import { formatDate } from "@/lib/utils";
 import { Calendar, Link as PublicLink } from "lucide-react";
 import Link from "next/link";
+import { AdminComment } from "./AdminComment";
 import FeedbackComments from "./FeedbackComments";
 import { StatusDropdown } from "./StatusDropdown";
-import { PinComment } from "@/components/PinComment";
 interface PageProps {
   params: Promise<{
     feedbackId: string;
@@ -40,11 +41,10 @@ const page = async ({ params }: PageProps) => {
       <div className="flex flex-col flex-1 min-w-0 border-r border-zinc-200 dark:border-zinc-800">
         {/* Scrollable area */}
         <div className="flex-1 overflow-y-auto">
-          <div className="p-2 ">
+          <div className="p-2">
             <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50 leading-snug mb-3">
               {feedback.title}
             </h1>
-
             {feedback.description && (
               <p className="mt-2 text-sm text-zinc-700 dark:text-zinc-300 leading-relaxed whitespace-pre-wrap">
                 {feedback.description}
@@ -59,6 +59,9 @@ const page = async ({ params }: PageProps) => {
             <FeedbackComments comments={feedback.comments} />
           </div>
         </div>
+        {/* <Separator /> */}
+        {/* Always stays at bottom */}
+        <AdminComment feedbackId={feedback.id} />
       </div>
 
       <div className="w-72 shrink-0 overflow-y-auto px-5  space-y-6">

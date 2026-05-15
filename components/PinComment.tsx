@@ -2,6 +2,7 @@ import { Pin } from "lucide-react";
 import { formatCommentDate } from "@/lib/utils"; // your import
 import UserAvatar from "./UserAvatar";
 import CommentPinButton from "@/components/CommentPinButton";
+import AdminAvatar from "./AdminAvatar";
 
 type Comment = {
   id: string;
@@ -28,18 +29,26 @@ export function PinComment({
   isAdmin = false,
 }: CommentCardProps) {
   const isAuthor = currentUserId === comment.author.id;
-  const initial = comment.author.name.charAt(0).toUpperCase();
-
   return (
     <div className="flex gap-3 py-4 pr-4">
-      {/* Avatar */}
-      <UserAvatar user={comment.author} />
+      {comment.isMemberReply ? (
+        <div className="pb-1 pr-1">
+          <AdminAvatar user={comment.author} />
+        </div>
+      ) : (
+        <UserAvatar user={comment.author} />
+      )}
 
       {/* Content */}
       <div className="flex-1 space-y-1">
         {/* Top row: name + pinned badge */}
         <div className="flex items-center justify-between gap-2">
-          <span className="text-sm font-semibold text-foreground">
+          <span
+            className={
+              "text-sm font-semibold  mb-0.5 " +
+              `${comment.isMemberReply ? "text-indigo-500" : "text-foreground"}`
+            }
+          >
             {comment.author.name}
           </span>
           {comment.isPinned && (

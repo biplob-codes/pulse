@@ -1,3 +1,4 @@
+import { getInitials } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 interface Props {
   user: {
@@ -10,12 +11,7 @@ const UserAvatar = ({ user }: Props) => {
     <Avatar className="ml-1 h-8 w-8 cursor-pointer">
       <AvatarImage src={user.image || ""} alt={user.name} />
       <AvatarFallback className="text-xs bg-muted text-muted-foreground">
-        {user.name
-          .split(" ")
-          .map((n) => n[0])
-          .join("")
-          .slice(0, 2)
-          .toUpperCase()}
+        {getInitials(user.name)}
       </AvatarFallback>
     </Avatar>
   );

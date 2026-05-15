@@ -217,3 +217,36 @@ export async function togglePinComment(commentId: string) {
     return { success: false, message: getErrorMessage(error) };
   }
 }
+
+export async function createAdminComment(
+  feedbackId: string,
+  content: string,
+): Promise<CommentState> {
+  try {
+    const user = await requireUser();
+    const feedback = await prisma.feedback.findUnique({
+      where: {
+        id: feedbackId,
+        board: { workspace: { members: { some: { userId: user.id } } } },
+      },
+    });
+    if (!feedback) throw new Error("Feedback not found");
+
+    const raw = { content };
+    const parsed = validateForm(commentSchema, raw);
+    if (!parsed.success) return parsed.state;
+
+    await prisma.comment.create({
+      data: {
+        feedbackId,
+        content: raw.content,
+        authorId: user.id,
+        isMemberReply: true,
+      },
+    });
+
+    return { success: true };
+  } catch (error) {
+    return { success: false, message: getErrorMessage(error) };
+  }
+}

@@ -15,6 +15,7 @@ interface CommentProps {
     name: string;
     image?: string | null;
   };
+  isMemberReply: boolean;
   content: string;
   createdAt: Date;
   isPinned: boolean;
@@ -75,7 +76,7 @@ const FeedbackComments = ({ comments }: Props) => {
         </p>
       )}
       {sorted.map((comment) => (
-        <Comment comment={comment} />
+        <Comment comment={comment} key={comment.id} />
       ))}
     </div>
   );

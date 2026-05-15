@@ -4,6 +4,7 @@ import UserAvatar from "@/components/UserAvatar";
 import { formatCommentDate } from "@/lib/utils"; // your utility fn
 import { X } from "lucide-react";
 import { EditCommentModal } from "./EditCommentModal";
+import AdminAvatar from "@/components/AdminAvatar";
 
 interface Props {
   comment: {
@@ -13,6 +14,7 @@ interface Props {
       name: string;
       image?: string | null;
     };
+    isMemberReply: boolean;
     content: string;
     createdAt: Date;
   };
@@ -23,12 +25,21 @@ export function CommentItem({ comment, currentUserId }: Props) {
   const boundAction = deleteCommentByUser.bind(null, comment.id);
   return (
     <div className="flex items-start gap-3 py-3">
-      <UserAvatar user={comment.author} />
+      {comment.isMemberReply ? (
+        <AdminAvatar user={comment.author} />
+      ) : (
+        <UserAvatar user={comment.author} />
+      )}
 
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-2">
           <div className="flex-1">
-            <p className="text-sm font-semibold text-foreground mb-0.5">
+            <p
+              className={
+                "text-sm font-semibold  mb-0.5 " +
+                `${comment.isMemberReply ? "text-indigo-500" : "text-foreground"}`
+              }
+            >
               {comment.author.name}
             </p>
             <p className="text-sm text-gray-900 dark:text-zinc-300">

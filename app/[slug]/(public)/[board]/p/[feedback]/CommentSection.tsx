@@ -15,6 +15,7 @@ interface Comment {
     name: string;
     image?: string | null;
   };
+  isMemberReply: boolean;
   content: string;
   createdAt: Date;
 }
@@ -30,12 +31,7 @@ const SORT_OPTIONS: { value: SortOption; label: string }[] = [
   { value: "newest", label: "Newest first" },
   { value: "oldest", label: "Oldest first" },
 ];
-const CommentSection = ({
-  comments,
-  currentUserId,
-  boardSlug,
-  workspaceSlug,
-}: Props) => {
+const CommentSection = ({ comments, currentUserId }: Props) => {
   const [sort, setSort] = useState<SortOption>("newest");
   const [localComments, setLocalComments] = useState<Comment[]>(comments);
   useEffect(() => {
