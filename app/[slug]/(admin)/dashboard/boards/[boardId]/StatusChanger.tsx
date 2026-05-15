@@ -1,15 +1,16 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { Check, Loader2, ChevronDown } from "lucide-react";
+import { updateFeedbackStatus } from "@/app/actions/feedback";
+import { FeedbackStatus } from "@/app/generated/prisma/enums";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { FeedbackStatus } from "@/app/generated/prisma/enums";
-import { updateFeedbackStatus } from "@/app/actions/feedback";
+import { Check, ChevronDown } from "lucide-react";
+import { useState, useTransition } from "react";
+import { toast } from "sonner";
 import { StatusBadge } from "./StatusBadge";
 
 const STATUS_OPTIONS: { label: string; value: FeedbackStatus }[] = [
@@ -32,48 +33,48 @@ export function StatusChanger({
 }: StatusChangerProps) {
   const [open, setOpen] = useState(false);
   const [optimisticStatus, setOptimisticStatus] = useState(currentStatus);
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
 
   function handleSelect(status: FeedbackStatus) {
     if (status === optimisticStatus) {
       setOpen(false);
       return;
     }
-
+    const previousStatus = optimisticStatus;
     setOptimisticStatus(status);
     setOpen(false);
 
     startTransition(async () => {
-      await updateFeedbackStatus(feedbackId, status);
+      const result = await updateFeedbackStatus(feedbackId, status);
+      if (!result?.success) {
+        setOptimisticStatus(previousStatus);
+        toast.error(result?.message);
+      }
     });
   }
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <button
-          className="flex items-center gap-1 group outline-none cursor-pointer"
-          disabled={isPending}
-        >
-          {isPending ? (
-            <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
-          ) : (
-            <>
-              <StatusBadge status={optimisticStatus} />
-              <ChevronDown className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-            </>
-          )}
+      <PopoverTrigger asChild onClick={(e) => e.stopPropagation()}>
+        <button className="flex items-center gap-1 group outline-none cursor-pointer">
+          <>
+            <StatusBadge status={optimisticStatus} />
+            <ChevronDown className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+          </>
         </button>
       </PopoverTrigger>
       <PopoverContent
-        className="w-44 p-1 shadow-md"
+        className="w-44 p-1 shadow-md rounded-sm"
         align="start"
         sideOffset={6}
       >
         {STATUS_OPTIONS.map((opt) => (
           <button
             key={opt.value}
-            onClick={() => handleSelect(opt.value)}
+            onClick={(e) => {
+              handleSelect(opt.value);
+              e.stopPropagation();
+            }}
             className={cn(
               "w-full flex items-center justify-between px-2.5 py-1.5 rounded-md text-sm transition-colors cursor-pointer",
               "hover:bg-muted text-left",

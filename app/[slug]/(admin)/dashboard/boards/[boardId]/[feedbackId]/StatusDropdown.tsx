@@ -1,5 +1,4 @@
 "use client";
-
 import { updateFeedbackStatus } from "@/app/actions/feedback";
 import { FeedbackStatus } from "@/app/generated/prisma/enums";
 import {
@@ -9,9 +8,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
+import { toast } from "sonner";
 
 const STATUS_LABELS: Record<FeedbackStatus, string> = {
   OPEN: "Open",
@@ -28,28 +27,28 @@ type Props = {
 };
 
 export function StatusDropdown({ feedbackId, currentStatus }: Props) {
-  const [isPending, startTransition] = useTransition();
+  const [optimisticStatus, setOptimisticStatus] = useState(currentStatus);
+  const [, startTransition] = useTransition();
   const router = useRouter();
 
   function handleChange(value: FeedbackStatus) {
+    const previousStatus = optimisticStatus;
+    setOptimisticStatus(value);
+
     startTransition(async () => {
-      await updateFeedbackStatus(feedbackId, value);
-      router.refresh();
+      const result = await updateFeedbackStatus(feedbackId, value);
+      if (!result?.success) {
+        setOptimisticStatus(previousStatus);
+        toast.error(result?.message);
+      }
+      if (result?.success) router.refresh();
     });
   }
 
   return (
-    <Select
-      value={currentStatus}
-      onValueChange={handleChange}
-      disabled={isPending}
-    >
+    <Select value={optimisticStatus} onValueChange={handleChange}>
       <SelectTrigger className="w-full rounded-sm cursor-pointer">
-        {isPending ? (
-          <Loader2 className="h-3.5 w-3.5 animate-spin" />
-        ) : (
-          <SelectValue />
-        )}
+        <SelectValue />
       </SelectTrigger>
       <SelectContent className="rounded-sm" position="popper">
         {Object.entries(STATUS_LABELS).map(([value, label]) => (

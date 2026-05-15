@@ -3,47 +3,54 @@ import { Badge } from "@/components/ui/badge";
 
 const statusConfig: Record<
   FeedbackStatus,
-  { label: string; className: string }
+  { label: string; className: string; dotClassName: string }
 > = {
   OPEN: {
     label: "Open",
     className:
-      "bg-zinc-100 text-zinc-700 border-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:border-zinc-700",
+      "border-none rounded-sm bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400",
+    dotClassName: "bg-zinc-600 dark:bg-zinc-400",
   },
   UNDER_REVIEW: {
     label: "Under Review",
     className:
-      "bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800",
+      "border-none rounded-sm bg-yellow-100 text-yellow-600 dark:bg-yellow-900 dark:text-yellow-400",
+    dotClassName: "bg-yellow-600 dark:bg-yellow-400",
   },
   PLANNED: {
     label: "Planned",
     className:
-      "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800",
+      "border-none rounded-sm bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400",
+    dotClassName: "bg-blue-600 dark:bg-blue-400",
   },
   IN_PROGRESS: {
     label: "In Progress",
     className:
-      "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/20 dark:text-purple-400 dark:border-purple-800",
+      "border-none rounded-sm bg-purple-100 text-purple-600 dark:bg-purple-900 dark:text-purple-400",
+    dotClassName: "bg-purple-600 dark:bg-purple-400",
   },
   COMPLETED: {
     label: "Completed",
     className:
-      "bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800",
+      "border-none rounded-sm bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-400",
+    dotClassName: "bg-green-600 dark:bg-green-400",
   },
   CLOSED: {
     label: "Closed",
     className:
-      "bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800",
+      "border-none rounded-sm bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-400",
+    dotClassName: "bg-red-600 dark:bg-red-400",
   },
 };
 
 export function StatusBadge({ status }: { status: FeedbackStatus }) {
   const config = statusConfig[status];
   return (
-    <Badge
-      variant="outline"
-      className={`text-xs font-medium px-2 py-0.5 ${config.className}`}
-    >
+    <Badge className={`text-xs font-medium px-2 py-0.5 ${config.className}`}>
+      <span
+        className={`size-1.5 rounded-full ${config.dotClassName}`}
+        aria-hidden="true"
+      />
       {config.label}
     </Badge>
   );

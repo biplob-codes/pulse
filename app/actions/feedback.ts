@@ -134,13 +134,14 @@ export async function deleteFeedback(
     return { success: false, message: getErrorMessage(error) };
   }
 }
-//TODO: Learn How the UI part uses this action and make suer that they show proper error
+
 export async function updateFeedbackStatus(
   feedbackId: string,
   status: FeedbackStatus,
 ) {
   try {
     const user = await requireUser();
+    await new Promise((r) => setTimeout(r, 5000));
 
     const feedback = await prisma.feedback.findUnique({
       where: { id: feedbackId },
